@@ -2,19 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="wrap_content"
     android:layout_marginLeft="2dp"
-    android:layout_marginTop="5dp"
+    android:layout_marginTop="0dp"
     android:layout_marginRight="2dp"
-    android:orientation="horizontal" >
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/lastSearchButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:backgroundTint="@color/white"
+        android:text="Button"
         android:textColor="@color/black"
-        android:textSize="20dp"
-        android:text="Button" />
+        android:textSize="20dp" />
 </LinearLayout>

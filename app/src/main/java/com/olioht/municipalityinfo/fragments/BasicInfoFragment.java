@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.olioht.municipalityinfo.R;
 
@@ -61,6 +62,15 @@ public class BasicInfoFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_basic_info, container, false);
+        View view = inflater.inflate(R.layout.fragment_basic_info, container, false);
+
+        TextView pageTitle = view.findViewById(R.id.pageTitle);
+
+        Bundle bundle = getArguments();
+        String title = bundle.getString("municipalityName");
+
+        pageTitle.setText(title);
+
+        return view;
     }
 }

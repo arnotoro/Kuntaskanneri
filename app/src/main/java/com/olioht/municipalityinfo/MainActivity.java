@@ -24,10 +24,10 @@ import com.olioht.municipalityinfo.recyclerview.searched.Search;
 import com.olioht.municipalityinfo.recyclerview.searched.SearchedListAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
-    private ArrayList<Search> pastSearches = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,39 +39,29 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+
         ActivityResultLauncher<Intent> municipalityActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult res) {
-                        if (res.getResultCode() == Activity.RESULT_OK) {
-                            Intent data = res.getData();
-                            if (data != null) {
-                                String municipalityName = data.getStringExtra("municipalityName");
-                                Log.d("MainActivity", "Municipality name from search activity: " + municipalityName);
 
-                                // Initialize recyclerView if null
-                                if (recyclerView == null) {
-                                    recyclerView = findViewById(R.id.lastSearches);
-                                }
+                // Back button pressed, so we update the list of previous searches
+                res -> {
+                    if (res.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = res.getData();
+                        if (data != null) {
+                            String municipalityName = data.getStringExtra("municipalityName");
+                            Log.d("MainActivity", "Municipality name from search activity: " + municipalityName);
 
-                                // Initialize pastSearches if null
-                                if (pastSearches == null) {
-                                    pastSearches = new ArrayList<>();
-                                }
-
-                                // Add the data to pastSearches
-                                Search search = new Search(municipalityName);
-                                pastSearches.add(search);
-
-                                Log.d("MainActivity", "Past searches: " + pastSearches);
-
-                                // Set adapter for recyclerView
-                                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                                recyclerView.setAdapter(new SearchedListAdapter(getApplicationContext(), pastSearches));
-                            } else {
-                                Log.e("MainActivity", "Intent data is null");
+                            // Initialize recyclerView if null
+                            if (recyclerView == null) {
+                                recyclerView = findViewById(R.id.lastSearches);
                             }
+
+
+                            // Set adapter for recyclerView and update the list of previous searches
+                            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                            recyclerView.setAdapter(new SearchedListAdapter(getApplicationContext(), ListSearches.getInstance().getSearches()));
+                        } else {
+                            Log.e("MainActivity", "Intent data is null");
                         }
                     }
                 });
