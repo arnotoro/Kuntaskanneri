@@ -1,7 +1,10 @@
 package com.olioht.municipalityinfo.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -10,6 +13,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.olioht.municipalityinfo.R;
+import com.olioht.municipalityinfo.api.DataRetriever;
+import com.olioht.municipalityinfo.api.MunicipalityData;
+
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -62,15 +71,43 @@ public class BasicInfoFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_basic_info, container, false);
+        return inflater.inflate(R.layout.fragment_basic_info, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         TextView pageTitle = view.findViewById(R.id.pageTitle);
+        TextView txtPopulationData = view.findViewById(R.id.txtPopulation);
 
         Bundle bundle = getArguments();
-        String title = bundle.getString("municipalityName");
+        if (bundle != null) {
 
-        pageTitle.setText(title);
+            // get location from bundle arguments
+            String location = bundle.getString("municipalityName");
 
-        return view;
+            // set page title
+            pageTitle.setText(location);
+
+            // fetch api data
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                Context context = getContext();
+                DataRetriever dataRetriever = new DataRetriever();
+                ArrayList<MunicipalityData> populationData = dataRetriever.getPopulationData(getContext(), location);
+
+                // update UI
+                requireActivity().runOnUiThread(() -> {
+                    if (populationData != null) {
+                        // get the last element of the list, which is the most recent data
+                        String population = String.valueOf(populationData.get(populationData.size() - 1).getPopulation());
+                        txtPopulationData.setText("Asukasmäärä: " + population);
+                    } else {
+                        txtPopulationData.setText("Data fetch failed.");
+                    }
+                });
+            });
+        }
     }
 }

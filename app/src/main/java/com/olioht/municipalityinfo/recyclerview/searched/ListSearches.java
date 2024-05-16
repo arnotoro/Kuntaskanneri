@@ -38,7 +38,12 @@ public class ListSearches {
         }
     }
 
-    public ArrayList<Search> getSearches() {
-        return searches;
+    public Search getSearch(int position) {
+        return searches.get(position);
     }
+
+    public int getSize() {
+        return searches.size();
+    }
+
 }

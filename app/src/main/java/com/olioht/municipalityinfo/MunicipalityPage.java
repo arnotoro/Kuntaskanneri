@@ -17,6 +17,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+import com.olioht.municipalityinfo.api.DataRetriever;
 import com.olioht.municipalityinfo.fragments.BasicInfoFragment;
 
 public class MunicipalityPage extends AppCompatActivity {
@@ -36,18 +37,11 @@ public class MunicipalityPage extends AppCompatActivity {
         // Get the selected municipality name from the intent
         Intent intent = getIntent();
         String municipality = intent.getStringExtra("municipalityName");
-        System.out.println("Municipality: " + municipality);
 
-
-        // Set the title of the page to the selected municipality
 
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         ViewPager2 fragmentArea = findViewById(R.id.viewArea);
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), getLifecycle(), municipality);
-
-
-        // Fetch data from the API
-
         fragmentArea.setAdapter(tabPagerAdapter);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -87,10 +81,4 @@ public class MunicipalityPage extends AppCompatActivity {
 
         getOnBackPressedDispatcher().addCallback(this, onBack);
     }
-
-    private void setPageTitle(View view, String title) {
-        TextView pageTitle = view.findViewById(R.id.pageTitle);
-        pageTitle.setText(title);
-    }
-
 }

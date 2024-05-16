@@ -1,23 +1,26 @@
 package com.olioht.municipalityinfo.recyclerview.searched;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.olioht.municipalityinfo.MainActivity;
+import com.olioht.municipalityinfo.MunicipalityPage;
 import com.olioht.municipalityinfo.R;
 
 import java.util.ArrayList;
 
 public class SearchedListAdapter extends RecyclerView.Adapter<SearchedViewHolder> {
-    private ArrayList<Search> searches;
+    private ListSearches searches;
     private Context context;
 
-    public SearchedListAdapter(Context context, ArrayList<Search> searches) {
+    public SearchedListAdapter(Context context, ListSearches searches) {
         this.context = context;
         this.searches = searches;
     }
@@ -25,20 +28,29 @@ public class SearchedListAdapter extends RecyclerView.Adapter<SearchedViewHolder
     @NonNull
     @Override
     public SearchedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new SearchedViewHolder(LayoutInflater.from(context).inflate(R.layout.list_search, parent, false));
+        return new SearchedViewHolder(LayoutInflater.from(context).inflate(R.layout.previous_searches, parent, false));
     }
 
 
     @Override
     public void onBindViewHolder(@NonNull SearchedViewHolder holder, int position) {
         Log.d("SearchedListAdapter", "onBindViewHolder: " + position);
-        Log.d("SearchedListAdapter", "onBindViewHolder searches: " + searches.get(position).getMunicipalityName());
-        holder.municipalityName.setText(searches.get(position).getMunicipalityName());
+        Log.d("SearchedListAdapter", "onBindViewHolder searches: " + searches.getSearch(position).getMunicipalityName());
+        holder.municipalityName.setText(searches.getSearch(position).getMunicipalityName());
+
+        holder.municipalityName.setOnClickListener(v -> {
+            Log.d("SearchedListAdapter", "Button clicked: " + searches.getSearch(position).getMunicipalityName());
+
+            Intent intent = new Intent(context, MunicipalityPage.class);
+            intent.putExtra("municipalityName", searches.getSearch(position).getMunicipalityName());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        });
     }
 
     @Override
     public int getItemCount() {
-        return searches.size();
+        return searches.getSize();
     }
 
 }

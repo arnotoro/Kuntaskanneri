@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -28,6 +29,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,51 +40,44 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-
-        ActivityResultLauncher<Intent> municipalityActivityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-
-                // Back button pressed, so we update the list of previous searches
-                res -> {
-                    if (res.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = res.getData();
-                        if (data != null) {
-                            String municipalityName = data.getStringExtra("municipalityName");
-                            Log.d("MainActivity", "Municipality name from search activity: " + municipalityName);
-
-                            // Initialize recyclerView if null
-                            if (recyclerView == null) {
-                                recyclerView = findViewById(R.id.lastSearches);
-                            }
-
-
-                            // Set adapter for recyclerView and update the list of previous searches
-                            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                            recyclerView.setAdapter(new SearchedListAdapter(getApplicationContext(), ListSearches.getInstance().getSearches()));
-                        } else {
-                            Log.e("MainActivity", "Intent data is null");
-                        }
-                    }
-                });
-
-
-
-        TextView search = findViewById(R.id.editTextSeach);
-        Button searchButton = findViewById(R.id.searchButton);
-
-        searchButton.setOnClickListener(v -> {
-            if (search.getText().toString().isEmpty()) {
-                search.setError("Please enter a municipality name");
-                return;
-            }
-            String searchQuery = search.getText().toString();
-            ListSearches.getInstance().addSearch(new Search(searchQuery));
-            Intent intent = new Intent(this, MunicipalityPage.class);
-            intent.putExtra("municipalityName", searchQuery);
-            municipalityActivityResultLauncher.launch(intent);
-        });
-
     }
 
+    public void onSearchBtnClick(View view) {
+        TextView search = findViewById(R.id.editTextSeach);
+
+        if (search.getText().toString().isEmpty()) {
+            search.setError("Please enter a municipality name");
+            return;
+        }
+
+        String searchQuery = search.getText().toString();
+        ListSearches.getInstance().addSearch(new Search(searchQuery));
+        Intent intent = new Intent(this, MunicipalityPage.class);
+        intent.putExtra("municipalityName", searchQuery);
+        municipalityActivityResultLauncher.launch(intent);
+    }
+
+    public void handleMunicipalityActivityResult(int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            String municipalityName = data.getStringExtra("municipalityName");
+            Log.d("MainActivity", "Municipality name from search activity: " + municipalityName);
+
+            // Initialize recyclerView if null
+            if (recyclerView == null) {
+                recyclerView = findViewById(R.id.lastSearches);
+            }
+
+            // Set adapter for recyclerView and update the list of previous searches
+            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+            recyclerView.setAdapter(new SearchedListAdapter(getApplicationContext(), ListSearches.getInstance()));
+        } else {
+            Log.e("MainActivity", "Intent data is null");
+        }
+    }
+
+    public final ActivityResultLauncher<Intent> municipalityActivityResultLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        // Back button pressed, so we update the list of previous searches
+        res -> handleMunicipalityActivityResult(res.getResultCode(), res.getData())
+    );
 }
