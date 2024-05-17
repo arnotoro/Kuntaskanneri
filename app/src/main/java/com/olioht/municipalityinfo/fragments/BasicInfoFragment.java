@@ -12,11 +12,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.anychart.AnyChart;
+import com.anychart.AnyChartView;
+import com.anychart.chart.common.dataentry.DataEntry;
+import com.anychart.chart.common.dataentry.ValueDataEntry;
+import com.anychart.charts.Cartesian;
+import com.anychart.charts.Pie;
+
+import com.anychart.core.cartesian.series.Line;
+import com.anychart.data.Mapping;
+import com.anychart.data.Set;
+import com.anychart.enums.Anchor;
+import com.anychart.enums.MarkerType;
+import com.anychart.enums.TooltipPositionMode;
+import com.anychart.graphics.vector.Stroke;
 import com.olioht.municipalityinfo.R;
 import com.olioht.municipalityinfo.api.DataRetriever;
 import com.olioht.municipalityinfo.api.MunicipalityData;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -80,11 +95,33 @@ public class BasicInfoFragment extends Fragment {
 
         TextView pageTitle = view.findViewById(R.id.pageTitle);
         TextView txtPopulationData = view.findViewById(R.id.txtPopulation);
+        AnyChartView populationChartView = view.findViewById(R.id.populationChangeChartView);
 
+        Cartesian cartesian = AnyChart.line();
+        cartesian.animation(true);
+
+        //cartesian.padding(5d, 5d, 5d, 5d);
+
+        cartesian.crosshair().enabled(true);
+        cartesian.crosshair()
+                .yLabel(true)
+                .yStroke((Stroke) null, null, null, (String) null, (String) null);
+
+        cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
+
+        cartesian.title("Asukasmäärän kehitys (1990 - 2022)");
+
+        cartesian.yAxis(0).title("Asukasmäärä");
+        cartesian.yAxis(0).title().fontSize(15d);
+        cartesian.xAxis(0).title("Vuosi");
+        cartesian.xAxis(0).title().fontSize(15d);
+        cartesian.xAxis(0).labels().padding(2d, 2d, 2d, 2d);
+
+
+        // get location from bundle arguments
         Bundle bundle = getArguments();
         if (bundle != null) {
 
-            // get location from bundle arguments
             String location = bundle.getString("municipalityName");
 
             // set page title
@@ -97,17 +134,60 @@ public class BasicInfoFragment extends Fragment {
                 DataRetriever dataRetriever = new DataRetriever();
                 ArrayList<MunicipalityData> populationData = dataRetriever.getPopulationData(getContext(), location);
 
+
+
                 // update UI
                 requireActivity().runOnUiThread(() -> {
+
                     if (populationData != null) {
                         // get the last element of the list, which is the most recent data
                         String population = String.valueOf(populationData.get(populationData.size() - 1).getPopulation());
-                        txtPopulationData.setText("Asukasmäärä: " + population);
+
+
+                        List<DataEntry> seriesData = new ArrayList<>();
+
+                        for (MunicipalityData data : populationData) {
+                            String year = String.valueOf(data.getYear());
+                            seriesData.add(new CustomDataEntry(year, data.getPopulation()));
+                        }
+
+                        Set set = Set.instantiate();
+                        set.data(seriesData);
+                        Mapping seriesMapping = set.mapAs("{ year: 'year', population: 'population' }");
+
+                        Line series1 = cartesian.line(seriesMapping);
+                        series1.name("Population");
+                        series1.hovered().markers().enabled(true);
+                        series1.hovered().markers()
+                                .type(MarkerType.CIRCLE)
+                                .size(4d);
+                        series1.tooltip()
+                                .position("right")
+                                .anchor(Anchor.LEFT_CENTER)
+                                .offsetX(5d)
+                                .offsetY(5d);
+
+//                        cartesian.legend().enabled(true);
+//                        cartesian.legend().fontSize(13d);
+//                        cartesian.legend().padding(0d, 0d, 10d, 0d);
+
+                        populationChartView.setChart(cartesian);
+
+
+                        txtPopulationData.setText("Nykyinen asukasmäärä: " + population);
                     } else {
                         txtPopulationData.setText("Data fetch failed.");
                     }
                 });
             });
         }
+
     }
-}
+
+    private class CustomDataEntry extends ValueDataEntry {
+
+        CustomDataEntry(String year, Number population) {
+            super(year, population);
+        }
+    }
+    }

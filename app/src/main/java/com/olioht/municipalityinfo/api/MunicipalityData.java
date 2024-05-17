@@ -15,12 +15,4 @@ public class MunicipalityData {
     public int getPopulation() {
         return population;
     }
-
-    public void setYear(int y) {
-        year = y;
-    }
-
-    public void setPopulation(int p) {
-        population = p;
-    }
 }

@@ -92,7 +92,7 @@ public class DataRetriever {
             ArrayList<MunicipalityData> populationData = new ArrayList<>();
 
             for (int i = 0; i < years.size(); i++) {
-                populationData.add(new MunicipalityData(Integer.valueOf(years.get(i)), Integer.valueOf(populations.get(i))));
+                populationData.add(new PopulationData(Integer.parseInt(years.get(i)), Integer.parseInt(populations.get(i))));
             }
 
             return populationData;
@@ -105,5 +105,7 @@ public class DataRetriever {
 
         return null;
     }
+
+
 }
 
