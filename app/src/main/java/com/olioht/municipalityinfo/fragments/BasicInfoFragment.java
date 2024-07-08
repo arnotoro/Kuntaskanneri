@@ -29,7 +29,9 @@ import com.anychart.graphics.vector.Stroke;
 import com.olioht.municipalityinfo.R;
 import com.olioht.municipalityinfo.api.DataRetriever;
 import com.olioht.municipalityinfo.api.MunicipalityData;
+import com.olioht.municipalityinfo.api.PopulationData;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -95,6 +97,7 @@ public class BasicInfoFragment extends Fragment {
 
         TextView pageTitle = view.findViewById(R.id.pageTitle);
         TextView txtPopulationData = view.findViewById(R.id.txtPopulation);
+        TextView txtEmploymentData = view.findViewById(R.id.txtWorkSelfSuffiency);
         AnyChartView populationChartView = view.findViewById(R.id.populationChangeChartView);
 
         Cartesian cartesian = AnyChart.line();
@@ -109,7 +112,11 @@ public class BasicInfoFragment extends Fragment {
 
         cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
 
-        cartesian.title("Asukasmäärän kehitys (1990 - 2022)");
+        cartesian.title("Asukasmäärän kehitys (1990 - 2023)");
+        cartesian.title().fontSize(16d);
+        cartesian.title().fontColor("black");
+
+        cartesian.background().stroke("1 black");
 
         cartesian.yAxis(0).title("Asukasmäärä");
         cartesian.yAxis(0).title().fontSize(15d);
@@ -132,8 +139,8 @@ public class BasicInfoFragment extends Fragment {
             executor.execute(() -> {
                 Context context = getContext();
                 DataRetriever dataRetriever = new DataRetriever();
-                ArrayList<MunicipalityData> populationData = dataRetriever.getPopulationData(getContext(), location);
-
+                ArrayList<PopulationData> populationData = dataRetriever.getPopulationData(getContext(), location);
+                ArrayList<Double> employmentData = dataRetriever.getEmploymentData(getContext(), location);
 
 
                 // update UI
@@ -175,6 +182,8 @@ public class BasicInfoFragment extends Fragment {
 
 
                         txtPopulationData.setText("Nykyinen asukasmäärä: " + population);
+                        System.out.println("Employment data: " + employmentData);
+                        txtEmploymentData.setText("Työpaikkaomavaraisuusaste: " + employmentData.get(0) + "%");
                     } else {
                         txtPopulationData.setText("Data fetch failed.");
                     }
