@@ -1,15 +1,6 @@
 {
   "query": [
     {
-      "code": "Alue",
-      "selection": {
-        "filter": "item",
-        "values": [
-          "KU020"
-        ]
-      }
-    },
-    {
       "code": "Vuosi",
       "selection": {
         "filter": "item",
@@ -19,11 +10,11 @@
       }
     },
     {
-      "code": "Tiedot",
+      "code": "Alue",
       "selection": {
         "filter": "item",
         "values": [
-          "tyollisyysaste"
+            "KU245"
         ]
       }
     }

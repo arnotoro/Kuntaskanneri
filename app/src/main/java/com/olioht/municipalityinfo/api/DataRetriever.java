@@ -9,7 +9,6 @@ import com.olioht.municipalityinfo.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -17,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class DataRetriever {
     private HashMap<String, String> municipalityCodes;
@@ -25,7 +25,7 @@ public class DataRetriever {
         fetchMunicipalityCodes();
     }
 
-    public ArrayList<PopulationData> getPopulationData(Context context, String location) {
+    public MunicipalityData getPopulationData(Context context, String location) {
         ObjectMapper objectMapper = new ObjectMapper();
         String municipalityCode;
         municipalityCode = municipalityCodes.get(location);
@@ -39,7 +39,10 @@ public class DataRetriever {
         ((ObjectNode) jsonInputString.get("query").get(0).get("selection")).putArray("values").add(municipalityCode);
 
         JsonNode rawPopulationData = fetchData("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px", jsonInputString, municipalityCode);
-        assert rawPopulationData != null;
+        if (rawPopulationData == null) {
+            System.out.println("Data fetch failed.");
+            return null;
+        }
 
         ArrayList<String> years = new ArrayList<>();
         ArrayList<String> populations = new ArrayList<>();
@@ -52,38 +55,55 @@ public class DataRetriever {
             populations.add(node.asText());
         }
 
-        ArrayList<PopulationData> populationData = new ArrayList<>();
+        LinkedHashMap<Integer, Integer> populationData = new LinkedHashMap<Integer, Integer>();
 
         for (int i = 0; i < years.size(); i++) {
-            populationData.add(new PopulationData(Integer.parseInt(years.get(i)), Integer.parseInt(populations.get(i))));
+            populationData.put(Integer.parseInt(years.get(i)), Integer.parseInt(populations.get(i)));
         }
 
-        return populationData;
+        PoliticalData employmentData = getEmploymentData(context, location);
+
+        return new MunicipalityData(location, municipalityCode, new PopulationData(populationData), employmentData);
     }
 
-    public ArrayList<Double> getEmploymentData(Context context, String location) {
+    private PoliticalData getEmploymentData(Context context, String location) {
         ObjectMapper objectMapper = new ObjectMapper();
         String municipalityCode;
         municipalityCode = municipalityCodes.get(location);
 
-        JsonNode jsonInputString = null;
+        JsonNode jsonInputStringEmploymentSuffiency = null;
+        JsonNode jsonInputStringEmployment = null;
         try {
-            jsonInputString = objectMapper.readTree(context.getResources().openRawResource(R.raw.employmentquery));
+            jsonInputStringEmploymentSuffiency = objectMapper.readTree(context.getResources().openRawResource(R.raw.employmentsuffiencyquery));
+            ((ObjectNode) jsonInputStringEmploymentSuffiency.get("query").get(1).get("selection")).putArray("values").add(municipalityCode);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        ((ObjectNode) jsonInputString.get("query").get(1).get("selection")).putArray("values").add(municipalityCode);
 
-        JsonNode rawPopulationData = fetchData("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_125s.px", jsonInputString, municipalityCode);
-        assert rawPopulationData != null;
-
-        ArrayList<Double> employmentSuffiency = new ArrayList<>();
-
-        for (JsonNode node : rawPopulationData.get("value")) {
-            employmentSuffiency.add(node.asDouble());
+        JsonNode rawEmploymentSuffiencyData = fetchData("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_125s.px", jsonInputStringEmploymentSuffiency, municipalityCode);
+        if (rawEmploymentSuffiencyData == null) {
+            System.out.println("Data fetch failed.");
+            return null;
         }
 
-        return employmentSuffiency;
+        try {
+            jsonInputStringEmployment = objectMapper.readTree(context.getResources().openRawResource(R.raw.employmentquery));
+            ((ObjectNode) jsonInputStringEmployment.get("query").get(0).get("selection")).putArray("values").add(municipalityCode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        JsonNode rawEmploymentData = fetchData("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_115x.px", jsonInputStringEmployment, municipalityCode);
+        if (rawEmploymentData == null) {
+            System.out.println("Data fetch failed.");
+            return null;
+        }
+
+//        Double employmentRate = rawEmploymentData.get("value").get(0).asDouble();
+//        System.out.println("Employment data: " + rawEmploymentData.get("value").get(0) + " " + employmentRate);
+//        System.out.println("Employment suffiency data: " + rawEmploymentSuffiencyData.get("value").asDouble());
+
+        return new PoliticalData(rawEmploymentData.get("value").get(0).asDouble(), rawEmploymentSuffiencyData.get("value").get(0).asDouble());
     }
 
 

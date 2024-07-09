@@ -51,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String searchQuery = search.getText().toString();
+        // first letter to uppercase, rest to lowercase
+        searchQuery = searchQuery.substring(0, 1).toUpperCase() + searchQuery.substring(1).toLowerCase();
+
         ListSearches.getInstance().addSearch(new Search(searchQuery));
         Intent intent = new Intent(this, MunicipalityPage.class);
         intent.putExtra("municipalityName", searchQuery);

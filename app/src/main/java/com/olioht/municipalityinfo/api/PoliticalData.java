@@ -1,9 +1,20 @@
 package com.olioht.municipalityinfo.api;
 
-public class PoliticalData extends MunicipalityData {
+public class PoliticalData {
+    private double employmentRate;
+    private double employmentSelfSuffiency;
 
 
-    public PoliticalData(int y, int p) {
-        super(y, p);
+    public PoliticalData(double employmentRate, double employmentSelfSuffiency) {
+        this.employmentRate = employmentRate;
+        this.employmentSelfSuffiency = employmentSelfSuffiency;
+    }
+
+    public double getEmploymentRate() {
+        return employmentRate;
+    }
+
+    public double getEmploymentSelfSuffiency() {
+        return employmentSelfSuffiency;
     }
 }

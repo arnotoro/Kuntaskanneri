@@ -1,6 +1,10 @@
 package com.olioht.municipalityinfo.fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,7 +21,6 @@ import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
-import com.anychart.charts.Pie;
 
 import com.anychart.core.cartesian.series.Line;
 import com.anychart.data.Mapping;
@@ -26,14 +29,15 @@ import com.anychart.enums.Anchor;
 import com.anychart.enums.MarkerType;
 import com.anychart.enums.TooltipPositionMode;
 import com.anychart.graphics.vector.Stroke;
+import com.olioht.municipalityinfo.MainActivity;
 import com.olioht.municipalityinfo.R;
 import com.olioht.municipalityinfo.api.DataRetriever;
 import com.olioht.municipalityinfo.api.MunicipalityData;
 import com.olioht.municipalityinfo.api.PopulationData;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -97,7 +101,8 @@ public class BasicInfoFragment extends Fragment {
 
         TextView pageTitle = view.findViewById(R.id.pageTitle);
         TextView txtPopulationData = view.findViewById(R.id.txtPopulation);
-        TextView txtEmploymentData = view.findViewById(R.id.txtWorkSelfSuffiency);
+        TextView txtEmploymentSuffiencyData = view.findViewById(R.id.txtEmploymentSuffiencyData);
+        TextView txtEmploymentData = view.findViewById(R.id.txtEmploymentData);
         AnyChartView populationChartView = view.findViewById(R.id.populationChangeChartView);
 
         Cartesian cartesian = AnyChart.line();
@@ -116,7 +121,7 @@ public class BasicInfoFragment extends Fragment {
         cartesian.title().fontSize(16d);
         cartesian.title().fontColor("black");
 
-        cartesian.background().stroke("1 black");
+        cartesian.background().stroke("2 black");
 
         cartesian.yAxis(0).title("Asukasmäärä");
         cartesian.yAxis(0).title().fontSize(15d);
@@ -139,58 +144,89 @@ public class BasicInfoFragment extends Fragment {
             executor.execute(() -> {
                 Context context = getContext();
                 DataRetriever dataRetriever = new DataRetriever();
-                ArrayList<PopulationData> populationData = dataRetriever.getPopulationData(getContext(), location);
-                ArrayList<Double> employmentData = dataRetriever.getEmploymentData(getContext(), location);
+                assert context != null;
 
+                MunicipalityData municipality = dataRetriever.getPopulationData(context, location);
+
+
+                if (municipality != null) {
+
+                    PopulationData populationData = municipality.getPopulationData();
+                    List<DataEntry> seriesData = new ArrayList<>();
+
+                    for (Integer key : populationData.getPopulationChange().keySet()) {
+                        //System.out.println("Year: " + key + " Population: " + populationData.getPopulationChange().get(key));
+                        seriesData.add(new CustomDataEntry(String.valueOf(key), populationData.getPopulationChange().get(key)));
+
+                    }
+
+                    Set set = Set.instantiate();
+                    set.data(seriesData);
+                    Mapping seriesMapping = set.mapAs("{ year: 'year', population: 'population' }");
+
+                    Line series1 = cartesian.line(seriesMapping);
+                    series1.name("Population");
+                    series1.hovered().markers().enabled(true);
+                    series1.hovered().markers()
+                            .type(MarkerType.CIRCLE)
+                            .size(4d);
+                    series1.tooltip()
+                            .position("right")
+                            .anchor(Anchor.LEFT_CENTER)
+                            .offsetX(5d)
+                            .offsetY(5d);
+                }
 
                 // update UI
                 requireActivity().runOnUiThread(() -> {
 
-                    if (populationData != null) {
+                    if (municipality != null) {
                         // get the last element of the list, which is the most recent data
-                        String population = String.valueOf(populationData.get(populationData.size() - 1).getPopulation());
+                        String population = String.valueOf(municipality.getPopulationData().getPopulation());
+                        txtPopulationData.setText("Nykyinen asukasmäärä: " + population);
 
-
-                        List<DataEntry> seriesData = new ArrayList<>();
-
-                        for (MunicipalityData data : populationData) {
-                            String year = String.valueOf(data.getYear());
-                            seriesData.add(new CustomDataEntry(year, data.getPopulation()));
+                        // set silhouette based on population
+                        pageTitle.setBackgroundColor(Color.GRAY);
+                        pageTitle.setTextColor(Color.WHITE);
+                        pageTitle.setShadowLayer(10, 2, 2, Color.BLACK);
+                        pageTitle.setAlpha(0.8f);
+                        if (municipality.getPopulationData().getPopulation() < 20000) {
+                            pageTitle.setBackgroundResource(R.drawable.silhouette_small);
+                        } else if (municipality.getPopulationData().getPopulation() < 100000) {
+                            pageTitle.setBackgroundResource(R.drawable.silhouette_medium);
+                        } else {
+                            pageTitle.setBackgroundResource(R.drawable.silhouette_large);
                         }
 
-                        Set set = Set.instantiate();
-                        set.data(seriesData);
-                        Mapping seriesMapping = set.mapAs("{ year: 'year', population: 'population' }");
-
-                        Line series1 = cartesian.line(seriesMapping);
-                        series1.name("Population");
-                        series1.hovered().markers().enabled(true);
-                        series1.hovered().markers()
-                                .type(MarkerType.CIRCLE)
-                                .size(4d);
-                        series1.tooltip()
-                                .position("right")
-                                .anchor(Anchor.LEFT_CENTER)
-                                .offsetX(5d)
-                                .offsetY(5d);
-
-//                        cartesian.legend().enabled(true);
-//                        cartesian.legend().fontSize(13d);
-//                        cartesian.legend().padding(0d, 0d, 10d, 0d);
 
                         populationChartView.setChart(cartesian);
 
-
-                        txtPopulationData.setText("Nykyinen asukasmäärä: " + population);
-                        System.out.println("Employment data: " + employmentData);
-                        txtEmploymentData.setText("Työpaikkaomavaraisuusaste: " + employmentData.get(0) + "%");
+                        //System.out.println("Employment data: " + employmentData);
+                        txtEmploymentData.setText("Työllisyysaste: " + municipality.getPoliticalData().getEmploymentRate() + "%");
+                        txtEmploymentSuffiencyData.setText("Työpaikkaomavaraisuusaste: " + municipality.getPoliticalData().getEmploymentSelfSuffiency() + "%");
                     } else {
-                        txtPopulationData.setText("Data fetch failed.");
+                        // create alert dialog if data is not available
+                        AlertDialog dialog = getAlertDialog();
+                        dialog.show();
+
                     }
                 });
             });
         }
 
+    }
+
+    private AlertDialog getAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        builder.setNegativeButton("Takaisin", (dialog, id) -> {
+            dialog.dismiss();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        });
+
+        builder.setMessage("Dataa ei saatavilla. Tarkista kunnan nimi ja yritä uudelleen.");
+
+        return builder.create();
     }
 
     private class CustomDataEntry extends ValueDataEntry {

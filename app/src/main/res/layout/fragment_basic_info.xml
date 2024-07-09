@@ -9,10 +9,8 @@
 
     <TextView
         android:id="@+id/pageTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="59dp"
         android:text="Kaupungin nimi"
         android:textAlignment="center"
         android:textSize="35sp"
@@ -36,7 +34,7 @@
         app:layout_constraintTop_toBottomOf="@+id/pageTitle" />
 
     <TextView
-        android:id="@+id/txtWorkSelfSuffiency"
+        android:id="@+id/txtEmploymentSuffiencyData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -48,7 +46,22 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtPopulation"
-        app:layout_constraintVertical_bias="0.004" />
+        app:layout_constraintVertical_bias="0.104" />
+
+    <TextView
+        android:id="@+id/txtEmploymentData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="340dp"
+        android:text="Työpaikkaomavaisuusaste"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPopulation"
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.anychart.AnyChartView
         android:id="@+id/populationChangeChartView"
@@ -59,6 +72,7 @@
         android:layout_marginEnd="16dp"
         android:background="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtPopulation">
 
