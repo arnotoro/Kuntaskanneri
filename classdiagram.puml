@@ -1,0 +1,46 @@
+@startuml
+
+class MunicipalityData {
+    - attribute1: PoliticalData
+    - attribute2: WeatherData
+    - attribute3: EconomicData
+}
+
+class PoliticalData {
+    - attribute1: String
+    - attribute2: String
+    - attribute3: String
+}
+
+class WeatherData {
+    - attribute1: String
+    - attribute2: String
+    - attribute3: String
+}
+
+class EconomicData {
+    - attribute1: String
+    - attribute2: String
+    - attribute3: String
+}
+
+class DataRetriever {
+    + getMunicipalityData(): MunicipalityData
+}
+
+class UI {
+    + displayMunicipalityData()
+}
+
+class Quiz {
+    + getQuizData()
+}
+
+DataRetriever -- MunicipalityData
+MunicipalityData <-- PoliticalData
+MunicipalityData <-- WeatherData
+MunicipalityData <-- EconomicData
+MunicipalityData --o UI
+MunicipalityData --o Quiz
+
+@enduml

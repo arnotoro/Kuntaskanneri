@@ -25,20 +25,29 @@ public class DataRetriever {
         fetchMunicipalityCodes();
     }
 
-    public MunicipalityData getPopulationData(Context context, String location) {
+    public MunicipalityData getMunicipalityData(Context context, String location) {
+        PopulationData popData = fetchPopulationData(context, location);
+        PoliticalData polData = fetchPoliticalData(context, location);
+
+        return new MunicipalityData(location, municipalityCodes.get(location), popData, polData);
+    }
+
+
+    private PopulationData fetchPopulationData(Context context, String location) {
         ObjectMapper objectMapper = new ObjectMapper();
-        String municipalityCode;
-        municipalityCode = municipalityCodes.get(location);
+        String municipalityCode = municipalityCodes.get(location);
 
         JsonNode jsonInputString = null;
+
         try {
             jsonInputString = objectMapper.readTree(context.getResources().openRawResource(R.raw.populationquery));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         ((ObjectNode) jsonInputString.get("query").get(0).get("selection")).putArray("values").add(municipalityCode);
 
-        JsonNode rawPopulationData = fetchData("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px", jsonInputString, municipalityCode);
+        JsonNode rawPopulationData = fetchDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px", jsonInputString, municipalityCode);
         if (rawPopulationData == null) {
             System.out.println("Data fetch failed.");
             return null;
@@ -61,12 +70,10 @@ public class DataRetriever {
             populationData.put(Integer.parseInt(years.get(i)), Integer.parseInt(populations.get(i)));
         }
 
-        PoliticalData employmentData = getEmploymentData(context, location);
-
-        return new MunicipalityData(location, municipalityCode, new PopulationData(populationData), employmentData);
+        return new PopulationData(populationData);
     }
 
-    private PoliticalData getEmploymentData(Context context, String location) {
+    private PoliticalData fetchPoliticalData(Context context, String location) {
         ObjectMapper objectMapper = new ObjectMapper();
         String municipalityCode;
         municipalityCode = municipalityCodes.get(location);
@@ -80,7 +87,7 @@ public class DataRetriever {
             throw new RuntimeException(e);
         }
 
-        JsonNode rawEmploymentSuffiencyData = fetchData("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_125s.px", jsonInputStringEmploymentSuffiency, municipalityCode);
+        JsonNode rawEmploymentSuffiencyData = fetchDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_125s.px", jsonInputStringEmploymentSuffiency, municipalityCode);
         if (rawEmploymentSuffiencyData == null) {
             System.out.println("Data fetch failed.");
             return null;
@@ -93,7 +100,7 @@ public class DataRetriever {
             throw new RuntimeException(e);
         }
 
-        JsonNode rawEmploymentData = fetchData("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_115x.px", jsonInputStringEmployment, municipalityCode);
+        JsonNode rawEmploymentData = fetchDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_115x.px", jsonInputStringEmployment, municipalityCode);
         if (rawEmploymentData == null) {
             System.out.println("Data fetch failed.");
             return null;
@@ -107,13 +114,7 @@ public class DataRetriever {
     }
 
 
-
-    public ArrayList<PoliticalData> getPoliticalData(Context context, String query) {
-        return null;
-    }
-
-
-    private JsonNode fetchData(String StringUrl, JsonNode query, String mCode) {
+    private JsonNode fetchDataFromApi(String StringUrl, JsonNode query, String mCode) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             URL url = new URL(StringUrl);

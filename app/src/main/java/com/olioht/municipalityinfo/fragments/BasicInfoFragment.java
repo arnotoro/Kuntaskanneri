@@ -134,19 +134,19 @@ public class BasicInfoFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
 
+            // set page title to location
             String location = bundle.getString("municipalityName");
-
-            // set page title
             pageTitle.setText(location);
 
-            // fetch api data
+            // fetch api data in separate thread
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 Context context = getContext();
-                DataRetriever dataRetriever = new DataRetriever();
                 assert context != null;
 
-                MunicipalityData municipality = dataRetriever.getPopulationData(context, location);
+                DataRetriever dataRetriever = new DataRetriever();
+                // population data
+                MunicipalityData municipality = dataRetriever.getMunicipalityData(context, location);
 
 
                 if (municipality != null) {
