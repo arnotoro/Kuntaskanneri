@@ -66,7 +66,7 @@ Kuntaskanneri on Android-sovellus, joka hakee käyttäjän antaman kunnan perust
 #### Yhteenlaskeutut pisteet: 31
 
 ## Luokkakaavio
-![Class diagram](./classdiagram.puml)  
+![Class diagram](./classdiagram.png)  
 
 
 
