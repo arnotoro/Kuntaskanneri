@@ -1,8 +1,11 @@
 # Kuntaskanneri
 
 ## Kuvaus
-**LUT Olio-ohjelmointi kurssin harjoitustyö**
+**LUT Olio-ohjelmointi kurssin harjoitustyö** \
 Kuntaskanneri on Android-sovellus, joka hakee käyttäjän antaman kunnan perustiedot Tilastokeskuksen APIsta ja näyttää ne käyttäjälle. Sovellus hakee kunnan väestökehityksen, työpaikkaomavaraisuuden ja työllisyysasteen. Sovellus käyttää myös Fintrafficin ja OpenWeatherMapin APIa hakeakseen liikennekamerakuvia ja säätilan mikäli nämä ovat saatavilla. Sovellus tallentaa viimeisimmät haut, jotta käyttäjä voi helposti palata niihin.
+
+### Työnjako
+Tein projektin yksin.
 
 ## Ominaisuudet ja pisteytysehdotus
 
