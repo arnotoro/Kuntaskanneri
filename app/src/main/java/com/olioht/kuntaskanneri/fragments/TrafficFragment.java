@@ -91,9 +91,9 @@ public class TrafficFragment extends Fragment {
 
         Bundle bundle = getArguments();
         assert bundle != null;
+
+        // Get the location name from the bundle
         String location = bundle.getString("municipalityName");
-
-
         Log.d("TrafficFragment", "TrafficFragment municipalityName: " + location);
 
 
@@ -105,6 +105,8 @@ public class TrafficFragment extends Fragment {
 
             requireActivity().runOnUiThread(() -> {
                 TrafficData tfd = md.getTrafficData();
+
+                // If there is no traffic data available
                 if (tfd == null) {
                     pageTitle.setText("Tieliikennekameroita ei saatavilla");
                     return;
@@ -113,7 +115,7 @@ public class TrafficFragment extends Fragment {
 
                 pageTitle.setText(md.getTrafficData().getCamLocationName());
 
-
+                // Images are loaded into the recyclerview
                 recyclerView = view.findViewById(R.id.weathercamImages);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                 recyclerView.setAdapter(new WeatherCamListAdapter(getContext(), tfd));

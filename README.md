@@ -1,14 +1,14 @@
 # Kuntaskanneri
 
 ## Kuvaus
-LUTin olio-ohjelmoinnin kurssin harjoitustyö. Toteutettu Javalla. Ipsum lorem. --- lisää tekstiä
+**LUT Olio-ohjelmointi kurssin harjoitustyö**
+Kuntaskanneri on Android-sovellus, joka hakee käyttäjän antaman kunnan perustiedot Tilastokeskuksen APIsta ja näyttää ne käyttäjälle. Sovellus hakee kunnan väestökehityksen, työpaikkaomavaraisuuden ja työllisyysasteen. Sovellus käyttää myös Fintrafficin ja OpenWeatherMapin APIa hakeakseen liikennekamerakuvia ja säätilan mikäli nämä ovat saatavilla. Sovellus tallentaa viimeisimmät haut, jotta käyttäjä voi helposti palata niihin.
 
 ## Ominaisuudet ja pisteytysehdotus
 
 ### Pakolliset ominaisuudet
 - [x] Ohjelma on koodattu olioparadigman mukaisesti
-- [ ] Ohjelman koodi ja kommentit ovat englanniksi 
-TODO: KOMMENTOI KOODI
+- [x] Ohjelman koodi ja kommentit ovat englanniksi 
 - [x] Ohjelma on koodattu Javalla Android-studiolla ja se toimii Android-laitteilla
 - [x] Ohjelma sisältää vaaditut perustoiminnallisuudet
   - [x] Perustietojen haku kunnan nimen perusteella
@@ -17,11 +17,11 @@ TODO: KOMMENTOI KOODI
     - [x] Työllisyysaste (115x)
   - [x] Tietojen esittäminen käyttäjälle
 - [x] Dokumentaatio (README.md)
-  - [ ] Kuvaus
+  - [x] Kuvaus
   - [ ] Luokkakaavio
-  - [ ] Työnjako
-  - [ ] Implementoidut ominaisuudet
-  - [ ] Pisteytysehdotus
+  - [x] Työnjako
+  - [x] Implementoidut ominaisuudet
+  - [x] Pisteytysehdotus
 - [x] Tilastokeskuksen API käytössä tiedonhaussa
 
 ### Lisäominaisuudet
@@ -32,20 +32,15 @@ TODO: KOMMENTOI KOODI
     - Pieni kunta (<20000 asukasta)
     - Keskisuuri kunta (20000-100000 asukasta)
     - Suuri kunta (>100000 asukasta)
-- [ ] Datalähteitä on useampi
+- [x] Datalähteitä on useampi
   - [x] Tilastokeskuksen API
-  - [ ] Traficom API
-    - Autokanta, ajoneuvomäärät
-    - Liikenneonnettomuudet
-  - [ ] Fintraffic
-    - Mahdollinen tiekamera
-  - [ ] Ilmatieteen laitos
-    - Säätilastot 
+  - [x] Fintraffic
+    - Liikennekamerakuvat
+  - [x] OpenWeatherMap
+    - Tämän hetkinen sää
 - [x] Viimeksi haetut kunnat pikavalintoina ohjelman etusivulla
-- [ ] Kuntien vertailu
-- [ ] Kuntavisa
 - [x] Fragmenttien käyttö
-  - [ ] Kunnan tiedot, vertailu ja visailu esitetään omissa fragmenteissaan
+  - [x] Kunnan tiedot, sää ja liikennekamerat
 - [x] Datan visualisointi graafisesti
   - [x] Asukasmäärän kehitys AnyChartilla
 
@@ -54,30 +49,31 @@ TODO: KOMMENTOI KOODI
 - **10 pistettä** pakollisista ominaisuuksista
 - **21 pistettä** lisäominaisuuksista
   - 3 pistettä - RecycleView-komponentin käytöstä
+    - Aiemmin haettujen kuntien tilasto
+    - Liikennekamerakuvat
   - 2 pistettä - Kuvien käytöstä datassa
+    - Kaupunkien siluetit
+    - Liikennekamerakuvat
+    - Sääikoni
   - 5 pistettä - Datalähteitä on useampi
     - 3 pistettä toisesta datalähteestä
     - 2 pistettä kolmannesta datalähteestä
   - 2 pistettä - Viimeksi haetut kunnat pikavalintoina etusivulla
-  - 4 pistettä - Fragmenttien käytöstä kuntatietojen, vertailun ja visailun esittämisessä
+  - 4 pistettä - Fragmenttien käytöstä kunta-, sää- ja liikennekameratietojen esityksessä
   - 5 pistettä - Datan visualisointi graafisesti
-  - x pistettä - Kuntien vertailu
-  - x pistettä - Kuntavisa
+    - Asukasluvun muutos
 
 #### Yhteenlaskeutut pisteet: 31
 
 ## Luokkakaavio
+![Class diagram](./classdiagram.puml)  
+
 
 
 ## Käyttöohjeet
-### Creating a user
-1. Click the "Register" button in the navigation bar
-2. Fill in your information and click "Register"
-3. Login with your credentials
-4. Start sharing code snippets and comment on other people's posts!
-   
-### Sharing a code snippet
-1. Click the "Create a new Snippet" button in the navigation bar
-2. Give your snippet a title
-3. Write your code snippet. (Supports text indentation for code blocks)
-4. Post your snippet
+### Aloitusruutu
+1. Syötä suomalaisen kunnan nimi hakukenttään ja paina "Hae tiedot" -nappia.
+2. Sovellus hakee kunnan tiedot ja näyttää ne käyttäjälle.
+3. Ylhäällä olevasta navigointipalkista pystyy vaihtamaan näkymää kunnan tietojen, sään ja liikennekameroiden välillä.
+4. Puhelimen takaisin-napilla pääsee takaisin aloitusnäkymään, missä näkyy myös viimeksi haetut kunnat pikavalintoina.
+

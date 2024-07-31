@@ -17,7 +17,6 @@
         android:ems="10"
         android:hint="@string/hint_insert_town_name"
         android:inputType="text"
-        android:text="@string/default_search"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

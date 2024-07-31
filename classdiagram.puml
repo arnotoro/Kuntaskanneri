@@ -1,46 +1,92 @@
 @startuml
 
 class MunicipalityData {
-    - attribute1: PoliticalData
-    - attribute2: WeatherData
-    - attribute3: EconomicData
+    - municipalityName: String
+    - municipalityCode: String
+    - populationData: PopulationData
+    - politicalData: PoliticalData
+    - trafficData: TrafficData
+    - weatherData: WeatherData
+    + getPopulationData(): PopulationData
+    + getPoliticalData(): PoliticalData
+    + getTrafficData(): TrafficData
+    + getWeatherData(): WeatherData
 }
 
 class PoliticalData {
-    - attribute1: String
-    - attribute2: String
-    - attribute3: String
+    - employmentRate: Double
+    - employmentSelfSufficiency: Double
+    + getEmploymentRate(): Double
+    + getEmploymentSelfSufficiency(): Double
+}
+
+class PopulationData {
+    - currentPopulation: Int
+    - currentYear: Int
+    - populationChange: Map<Int, Int>
+    + getPopulation(): Int
+    + getPopulationChange(): Map<Int, Int>
+}
+
+class TrafficData {
+    - weatherCamId: String
+    - weatherCamImage: ArrayList<byte[]>
+    - roadNames: ArrayList<String>
+    - camLocationName: String
+    + getWeatherCamImages(): ArrayList<byte[]>
+    + getRoadNames(): ArrayList<String>
+    + getCamLocationName(): String
 }
 
 class WeatherData {
-    - attribute1: String
-    - attribute2: String
-    - attribute3: String
-}
-
-class EconomicData {
-    - attribute1: String
-    - attribute2: String
-    - attribute3: String
+    - currentTemperature: Int
+    - currentTemperatureFeelsLike: Int
+    - currentHumidity: Int
+    - currentWindSpeed: Int
+    - currentPressure: Int
+    - rainAmount: Double
+    - currentWeather: String
+    - weatherIconId: String
+    + getCurrentTemperature(): Int
+    + getCurrentTemperatureFeelsLike(): Int
+    + getCurrentHumidity(): Int
+    + getCurrentWindSpeed(): Int
+    + getCurrentPressure(): Int
+    + getCurrentRainAmountLastHour(): Double
+    + getCurrentWeather(): String
+    + getWeatherIconId(): String
 }
 
 class DataRetriever {
-    + getMunicipalityData(): MunicipalityData
+    - municipalityCodes: HashMap<String, String>
+    + getMunicipalityData(context: Context, location: String): MunicipalityData
+    - fetchWearherData(context: Context, location: String): WeatherData
+    - fetchTrafficData(context: Context, location: String): TrafficData
+    - fetchPopulationData(context: Context, location: String): PopulationData
+    - fetchPoliticalData(context: Context, location: String): PoliticalData
+    - fetchWeatherCamLocationID(location: String): JsonNode
+    - fetchJsonDataFromApi(stringUrl: String, query: JsonNode): JsonNode
+    - fetchMunicipalityCodes(): void
 }
 
 class UI {
-    + displayMunicipalityData()
+    + displayData(): void
 }
 
-class Quiz {
-    + getQuizData()
+class TabPagerAdapter {
+    - municipality: String
+    + createFragment(position: Int): Fragment
+    + getItemCount(): Int
 }
+
+
 
 DataRetriever -- MunicipalityData
 MunicipalityData <-- PoliticalData
 MunicipalityData <-- WeatherData
-MunicipalityData <-- EconomicData
-MunicipalityData --o UI
-MunicipalityData --o Quiz
+MunicipalityData <-- TrafficData
+MunicipalityData <-- PopulationData
+MunicipalityData --o TabPagerAdapter
+TabPagerAdapter --o UI
 
 @enduml

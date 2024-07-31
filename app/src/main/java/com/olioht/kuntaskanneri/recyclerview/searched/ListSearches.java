@@ -1,7 +1,5 @@
 package com.olioht.kuntaskanneri.recyclerview.searched;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 
 public class ListSearches {
@@ -26,16 +24,6 @@ public class ListSearches {
 
         // Add the new search at the beginning
         searches.add(0, search);
-    }
-
-    public void removeSearch(Search search) {
-        searches.remove(search);
-    }
-
-    public void listSearches() {
-        for (Search search : searches) {
-            Log.d("ListSearches", "Search: " + search.getMunicipalityName());
-        }
     }
 
     public Search getSearch(int position) {

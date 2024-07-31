@@ -15,16 +15,8 @@ public class TrafficData {
         this.camLocationName = camLocationName;
     }
 
-    public String getWeatherCamId() {
-        return weatherCamId;
-    }
-
     public ArrayList<byte[]> getWeatherCamImages() {
         return weatherCamImage;
-    }
-
-    public int getWeatherCamCount() {
-        return weatherCamImage.size();
     }
 
     public ArrayList<String> getRoadNames() {

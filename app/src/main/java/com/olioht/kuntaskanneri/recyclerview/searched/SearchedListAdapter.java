@@ -34,6 +34,7 @@ public class SearchedListAdapter extends RecyclerView.Adapter<SearchedViewHolder
         Log.d("SearchedListAdapter", "onBindViewHolder searches: " + searches.getSearch(position).getMunicipalityName());
         holder.municipalityName.setText(searches.getSearch(position).getMunicipalityName());
 
+        // When the user clicks on an element in the RecyclerView, open the municipality page for the location
         holder.municipalityName.setOnClickListener(v -> {
             Log.d("SearchedListAdapter", "Button clicked: " + searches.getSearch(position).getMunicipalityName());
 

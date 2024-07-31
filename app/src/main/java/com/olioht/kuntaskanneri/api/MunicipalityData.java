@@ -1,7 +1,7 @@
 package com.olioht.kuntaskanneri.api;
 
 public class MunicipalityData {
-    private String municipality;
+    private String municipalityName;
     private String municipalityCode;
     private PopulationData populationData;
     private PoliticalData politicalData;
@@ -9,16 +9,12 @@ public class MunicipalityData {
     private WeatherData weatherData;
 
     public MunicipalityData(String municipality, String municipalityCode, PopulationData populationData, PoliticalData politicalData, TrafficData trafficData, WeatherData weatherData) {
-        this.municipality = municipality;
+        this.municipalityName = municipality;
         this.municipalityCode = municipalityCode;
         this.populationData = populationData;
         this.politicalData = politicalData;
         this.trafficData = trafficData;
         this.weatherData = weatherData;
-    }
-
-    public String getMunicipality() {
-        return municipality;
     }
 
     public PopulationData getPopulationData() {

@@ -1,7 +1,6 @@
 package com.olioht.kuntaskanneri.recyclerview.weathercam;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -11,10 +10,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.olioht.kuntaskanneri.MunicipalityPage;
 import com.olioht.kuntaskanneri.R;
 import com.olioht.kuntaskanneri.api.TrafficData;
-import com.olioht.kuntaskanneri.recyclerview.searched.SearchedViewHolder;
 
 import java.util.List;
 
@@ -41,6 +38,7 @@ public class WeatherCamListAdapter extends RecyclerView.Adapter<WeatherCamViewHo
         byte[] image = images.get(position);
         String roadName = roadNames.get(position);
 
+        // Convert images from byte array to Bitmap and set the image and road name to the view holder
         Bitmap bm = BitmapFactory.decodeByteArray(image, 0, image.length);
         holder.weatherCamImage.setImageBitmap(bm);
         holder.roadName.setText(roadName);

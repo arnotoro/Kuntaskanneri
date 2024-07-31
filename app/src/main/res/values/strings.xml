@@ -4,8 +4,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="previous_searches">Viimeksi haetut kunnat</string>
     <string name="fetch_data_button">Hae tiedot</string>
-    <string name="hint_insert_town_name">Kunnan nimi</string>
-    <string name="default_search">Kerava</string>
+    <string name="hint_insert_town_name">Anna kunnan nimi</string>
     <string name="perustiedot">Perustiedot</string>
     <string name="weather">Sää</string>
     <string name="weatherCams">Liikennekamerat</string>

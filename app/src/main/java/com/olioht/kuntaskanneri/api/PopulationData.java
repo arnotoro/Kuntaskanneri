@@ -10,16 +10,10 @@ public class PopulationData {
 
     public PopulationData(Map<Integer, Integer> populationChange) {
         this.populationChange = populationChange;
+
+        // Latest entry in the map is the current population and year
         this.currentPopulation = (int) populationChange.values().toArray()[populationChange.size()-1];
         this.currentYear = (int) populationChange.keySet().toArray()[populationChange.size()-1];
-        System.out.println("Current population: " + currentPopulation);
-        System.out.println("Current year: " + currentYear);
-
-
-    }
-
-    public int getYear() {
-        return currentYear;
     }
 
     public int getPopulation() {

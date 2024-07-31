@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +16,7 @@ import android.widget.TextView;
 import com.olioht.kuntaskanneri.R;
 import com.olioht.kuntaskanneri.api.DataRetriever;
 import com.olioht.kuntaskanneri.api.MunicipalityData;
-import com.olioht.kuntaskanneri.api.TrafficData;
 import com.olioht.kuntaskanneri.api.WeatherData;
-import com.olioht.kuntaskanneri.recyclerview.weathercam.WeatherCamListAdapter;
-
-import org.w3c.dom.Text;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -92,6 +87,7 @@ public class WeatherFragment extends Fragment {
         TextView pressure = view.findViewById(R.id.currentPressure);
         TextView rainAmount = view.findViewById(R.id.currentRainAmountLastHour);
         TextView weatherDescription = view.findViewById(R.id.weatherDescription);
+        TextView temperatureFeelsLike = view.findViewById(R.id.currentFeelsLike);
 
         Bundle bundle = getArguments();
         assert bundle != null;
@@ -107,24 +103,24 @@ public class WeatherFragment extends Fragment {
             requireActivity().runOnUiThread(() -> {
                 WeatherData wd = md.getWeatherData();
 
+                // If weather data is not available
                 if (wd == null) {
                     pageTitle.setText("Säätiedot eivät saatavilla");
                     return;
                 }
 
-
+                // Assign the weather data to the UI elements
                 pageTitle.setText(location);
                 weatherIcon.setBackgroundColor(Color.parseColor("#d1dff6"));
                 temperature.setText(wd.getCurrentTemperature() + "°C");
+                temperatureFeelsLike.setText("Tuntuu kuin: " + wd.getCurrentTemperatureFeelsLike() + "°C");
                 weatherDescription.setText(wd.getCurrentWeather());
                 humidity.setText("Suht. kosteus: " + wd.getCurrentHumidity() + "%");
-                windSpeed.setText("Tuuli: "+ wd.getCurrentWindSpeed() + " m/s");
+                windSpeed.setText("Tuuli: "+ wd.getCurrentWindSpeed() + "m/s");
                 pressure.setText("Ilmanpaine: " + wd.getCurrentPressure() + "hPa");
                 rainAmount.setText("Sademäärä (viim. 1h): " + wd.getCurrentRainAmountLastHour() + "mm");
 
-
-                System.out.println("WeatherFragment onViewCreated: " + wd.getWeatherIconId());
-
+                // Set the weather icon based on the weather data received, uses the weather icon id from API
                 switch(wd.getWeatherIconId()) {
                     case "02d":
                         weatherIcon.setImageResource(R.drawable.weather_few_clouds);

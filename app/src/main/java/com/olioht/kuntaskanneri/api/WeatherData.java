@@ -26,6 +26,10 @@ public class WeatherData {
         return currentTemperature;
     }
 
+    public int getCurrentTemperatureFeelsLike() {
+        return currentTemperatureFeelsLike;
+    }
+
     public int getCurrentHumidity() {
         return currentHumidity;
     }

@@ -11,14 +11,10 @@ import com.olioht.kuntaskanneri.R;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,37 +25,44 @@ public class DataRetriever {
     private HashMap<String, String> municipalityCodes;
 
     public DataRetriever() {
+        // Fetch municipality codes for the population data
         fetchMunicipalityCodes();
     }
 
     public MunicipalityData getMunicipalityData(Context context, String location) {
+        // Fetch all of data for the given location
         PopulationData popData = fetchPopulationData(context, location);
         PoliticalData polData = fetchPoliticalData(context, location);
         TrafficData trafficData = fetchTrafficData(context, location);
         WeatherData weatherData = fetchWeatherData(context, location);
 
         if (popData == null || polData == null) {
+            // Check if data fetch failed for the location, popData and polData should never be null
             Log.d("DataRetriever", "Data fetch failed. Data might not be available for " + location);
             return null;
-
         }
         return new MunicipalityData(location, municipalityCodes.get(location), popData, polData, trafficData, weatherData);
     }
 
     private WeatherData fetchWeatherData(Context context, String location) {
-
+        // OpenWeatherMap API key
         String API_KEY = "7fff64e1f441738c518add11ec237b8c";
 
+        // Fetch location coordinates for weather data
         JsonNode locationGeoCode = fetchJsonDataFromApi("https://api.openweathermap.org/geo/1.0/direct?q=" + location +"&limit=5&appid=" +API_KEY, null);
+
         if (locationGeoCode != null) {
             for (JsonNode node : locationGeoCode) {
+                // Check that the location is in Finland
                 if (node.get("country").asText().toUpperCase().contains("FI")) {
                     String lat = node.get("lat").asText();
                     String lon = node.get("lon").asText();
+
+                    // Fetch weather data for the location
                     JsonNode weatherData = fetchJsonDataFromApi("https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&units=metric&appid=" + API_KEY, null);
-                    System.out.println("Node: " + weatherData);
 
                     if (weatherData != null) {
+                        // Get all of the weather data elements from the JSON response
                         int temperature = weatherData.get("main").get("temp").asInt();
                         int temperatureFeelsLike = weatherData.get("main").get("feels_like").asInt();
                         int humidity = weatherData.get("main").get("humidity").asInt();
@@ -67,15 +70,14 @@ public class DataRetriever {
                         int pressure = weatherData.get("main").get("pressure").asInt();
                         String weather = weatherData.get("weather").get(0).get("description").asText();
                         String weatherIconID = weatherData.get("weather").get(0).get("icon").asText();
+
+                        // Rain amount is not always available for every location
                         if (weatherData.get("rain") != null) {
                             double rain = weatherData.get("rain").get("1h").asDouble();
                             return new WeatherData(temperature, temperatureFeelsLike, humidity, windSpeed, pressure, rain, weather, weatherIconID);
                         }
 
                         return new WeatherData(temperature, temperatureFeelsLike, humidity, windSpeed, pressure, 0.0, weather, weatherIconID);
-
-
-
                     }
                 }
             }
@@ -85,8 +87,8 @@ public class DataRetriever {
 
 
     private TrafficData fetchTrafficData(Context context, String location) {
+        // Fetch the weather cam location id for the location, if there are multiple weather cams for the location, the first found in the api is used
         JsonNode weatherCamLocationID = fetchWeatherCamLocationID(location);
-        ObjectMapper objectMapper = new ObjectMapper();
 
         ArrayList<byte[]> images = new ArrayList<>();
         ArrayList<String> roadNames = new ArrayList<>();
@@ -97,25 +99,25 @@ public class DataRetriever {
         } else {
             Log.d("DataRetriever:fetchTrafficData", "weatherCamLocationID:" + weatherCamLocationID);
 
+            // Fetch weathercam specific data for location
             JsonNode weatherCamData = fetchJsonDataFromApi("https://tie.digitraffic.fi/api/weathercam/v1/stations/" + weatherCamLocationID.asText(), null);
             Log.d("DataRetriever:fetchTrafficData", "weatherCamData: " + weatherCamData);
 
+            // Get the specific road location name of the weather cam
             String camLocationName = weatherCamData.get("properties").get("names").get("fi").asText();
-            JsonNode weatherCamProperties = weatherCamData.get("properties").get("presets");
-            System.out.println("Node: " + weatherCamProperties);;
 
+            // Get the weather cam image url and cam id
+            JsonNode weatherCamProperties = weatherCamData.get("properties").get("presets");
 
             for (JsonNode node : weatherCamProperties) {
                 String camID = node.get("id").asText();
                 String camName = node.get("presentationName").asText();
                 String imageURL = node.get("imageUrl").asText();
 
-                System.out.println("CamID: " + camID);
-                System.out.println("CamName: " + camName);
-                System.out.println("ImageURL: " + imageURL);
-
+                // One location can have multiple cameras, add the names of the cameras to the list
                 roadNames.add(camName);
 
+                // Fetch the image data from the image API
                 try {
                     URL URL = new URL(imageURL);
                     HttpURLConnection connection = (HttpURLConnection) URL.openConnection();
@@ -134,20 +136,16 @@ public class DataRetriever {
                     bis.close();
                     baos.close();
 
+                    // Add the images to an array
                     images.add(baos.toByteArray());
 
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-
             return new TrafficData(location, images, roadNames, camLocationName);
         }
     }
-
-
 
     private PopulationData fetchPopulationData(Context context, String location) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -155,19 +153,23 @@ public class DataRetriever {
 
         JsonNode jsonInputString = null;
 
+        // Read the population query from the resources to use for the API call
         try {
             jsonInputString = objectMapper.readTree(context.getResources().openRawResource(R.raw.populationquery));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        // Add the municipality code to the query
         ((ObjectNode) jsonInputString.get("query").get(0).get("selection")).putArray("values").add(municipalityCode);
 
+        // Fetch the population data from the API
         JsonNode rawPopulationData = fetchJsonDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px", jsonInputString);
         if (rawPopulationData == null) {
             return null;
         }
 
+        // Parse the population data from the JSON response
         ArrayList<String> years = new ArrayList<>();
         ArrayList<String> populations = new ArrayList<>();
 
@@ -179,6 +181,7 @@ public class DataRetriever {
             populations.add(node.asText());
         }
 
+        // Combine the years and populations to a LinkedHashMap to return one object to use in the app UI
         LinkedHashMap<Integer, Integer> populationData = new LinkedHashMap<Integer, Integer>();
 
         for (int i = 0; i < years.size(); i++) {
@@ -195,6 +198,8 @@ public class DataRetriever {
 
         JsonNode jsonInputStringEmploymentSuffiency = null;
         JsonNode jsonInputStringEmployment = null;
+
+        // Query for API call to get employment suffiency data and fetch the data
         try {
             jsonInputStringEmploymentSuffiency = objectMapper.readTree(context.getResources().openRawResource(R.raw.employmentsuffiencyquery));
             ((ObjectNode) jsonInputStringEmploymentSuffiency.get("query").get(1).get("selection")).putArray("values").add(municipalityCode);
@@ -207,6 +212,7 @@ public class DataRetriever {
             return null;
         }
 
+        // Query for API call to get employment data and fetch the data
         try {
             jsonInputStringEmployment = objectMapper.readTree(context.getResources().openRawResource(R.raw.employmentquery));
             ((ObjectNode) jsonInputStringEmployment.get("query").get(0).get("selection")).putArray("values").add(municipalityCode);
@@ -220,10 +226,6 @@ public class DataRetriever {
             return null;
         }
 
-//        Double employmentRate = rawEmploymentData.get("value").get(0).asDouble();
-//        System.out.println("Employment data: " + rawEmploymentData.get("value").get(0) + " " + employmentRate);
-//        System.out.println("Employment suffiency data: " + rawEmploymentSuffiencyData.get("value").asDouble());
-
         return new PoliticalData(rawEmploymentData.get("value").get(0).asDouble(), rawEmploymentSuffiencyData.get("value").get(0).asDouble());
     }
 
@@ -236,23 +238,23 @@ public class DataRetriever {
             return null;
         } else {
             for (JsonNode node : weatherCamLocations.get("features")) {
+                // Find the location id for the location
                 if (node.get("properties").get("name").asText().toUpperCase().contains(location.toUpperCase())) {
-                    //System.out.println(node.get("properties").get("presets").get(0).get("id").asText());
                     return node.get("properties").get("id");
                 }
             }
         }
-
         return null;
     }
 
 
-    private JsonNode fetchJsonDataFromApi(String StringUrl, JsonNode query) {
+    private JsonNode fetchJsonDataFromApi(String stringUrl, JsonNode query) {
         ObjectMapper objectMapper = new ObjectMapper();
 
+        // For GET requests with no query
         if (query == null) {
             try {
-                URL url = new URL(StringUrl);
+                URL url = new URL(stringUrl);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
@@ -265,14 +267,17 @@ public class DataRetriever {
                 while ((line = br.readLine()) != null) {
                     response.append(line.trim());
                 }
+
+                br.close();
                 return objectMapper.readTree(response.toString());
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
+            // For POST requests with a query
             try {
-                URL url = new URL(StringUrl);
+                URL url = new URL(stringUrl);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
@@ -290,6 +295,9 @@ public class DataRetriever {
                 while ((line = br.readLine()) != null) {
                     response.append(line.trim());
                 }
+                br.close();
+                os.close();
+
                 return objectMapper.readTree(response.toString());
             }
             catch (IOException e) {
@@ -302,19 +310,19 @@ public class DataRetriever {
 
     private void fetchMunicipalityCodes() {
         ObjectMapper objectMapper = new ObjectMapper();
-
         JsonNode areas = null;
 
+        // Fetch the municipality codes from tilastokeskus API
         try {
             areas = objectMapper.readTree(new URL("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px"));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         ArrayList<String> keys = new ArrayList<>();
         ArrayList<String> values = new ArrayList<>();
+
+        // Parse the municipality codes from the JSON response, names and codes
 
         for (JsonNode node : areas.get("variables").get(1).get("valueTexts")) {
             keys.add(node.asText());
@@ -330,7 +338,4 @@ public class DataRetriever {
             municipalityCodes.put(keys.get(i), values.get(i));
         }
     }
-
-
 }
-
