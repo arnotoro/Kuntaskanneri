@@ -1,4 +1,4 @@
-package com.olioht.municipalityinfo;
+package com.olioht.kuntaskanneri;
 
 import android.content.Context;
 

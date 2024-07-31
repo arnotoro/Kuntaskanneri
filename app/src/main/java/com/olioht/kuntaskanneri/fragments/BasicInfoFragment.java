@@ -1,9 +1,7 @@
-package com.olioht.municipalityinfo.fragments;
+package com.olioht.kuntaskanneri.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -11,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,15 +28,13 @@ import com.anychart.enums.Anchor;
 import com.anychart.enums.MarkerType;
 import com.anychart.enums.TooltipPositionMode;
 import com.anychart.graphics.vector.Stroke;
-import com.olioht.municipalityinfo.MainActivity;
-import com.olioht.municipalityinfo.R;
-import com.olioht.municipalityinfo.api.DataRetriever;
-import com.olioht.municipalityinfo.api.MunicipalityData;
-import com.olioht.municipalityinfo.api.PopulationData;
+import com.olioht.kuntaskanneri.R;
+import com.olioht.kuntaskanneri.api.DataRetriever;
+import com.olioht.kuntaskanneri.api.MunicipalityData;
+import com.olioht.kuntaskanneri.api.PopulationData;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -125,6 +122,9 @@ public class BasicInfoFragment extends Fragment {
 
         cartesian.yAxis(0).title("Asukasmäärä");
         cartesian.yAxis(0).title().fontSize(15d);
+
+
+
         cartesian.xAxis(0).title("Vuosi");
         cartesian.xAxis(0).title().fontSize(15d);
         cartesian.xAxis(0).labels().padding(2d, 2d, 2d, 2d);
@@ -148,7 +148,6 @@ public class BasicInfoFragment extends Fragment {
                 // population data
                 MunicipalityData municipality = dataRetriever.getMunicipalityData(context, location);
 
-
                 if (municipality != null) {
 
                     PopulationData populationData = municipality.getPopulationData();
@@ -156,7 +155,7 @@ public class BasicInfoFragment extends Fragment {
 
                     for (Integer key : populationData.getPopulationChange().keySet()) {
                         //System.out.println("Year: " + key + " Population: " + populationData.getPopulationChange().get(key));
-                        seriesData.add(new CustomDataEntry(String.valueOf(key), populationData.getPopulationChange().get(key)));
+                        seriesData.add(new CustomDataEntry(key, populationData.getPopulationChange().get(key)));
 
                     }
 
@@ -231,8 +230,8 @@ public class BasicInfoFragment extends Fragment {
 
     private class CustomDataEntry extends ValueDataEntry {
 
-        CustomDataEntry(String year, Number population) {
+        CustomDataEntry(Number year, Number population) {
             super(year, population);
         }
     }
-    }
+}

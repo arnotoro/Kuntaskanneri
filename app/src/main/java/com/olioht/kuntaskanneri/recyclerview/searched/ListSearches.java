@@ -1,4 +1,4 @@
-package com.olioht.municipalityinfo.recyclerview.searched;
+package com.olioht.kuntaskanneri.recyclerview.searched;
 
 import android.util.Log;
 

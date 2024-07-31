@@ -1,4 +1,4 @@
-package com.olioht.municipalityinfo.fragments;
+package com.olioht.kuntaskanneri.fragments;
 
 import android.os.Bundle;
 
@@ -10,16 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.olioht.municipalityinfo.R;
-import com.olioht.municipalityinfo.api.MunicipalityData;
-import com.olioht.municipalityinfo.api.PopulationData;
+import com.olioht.kuntaskanneri.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link CompareTownFragment#newInstance} factory method to
+ * Use the {@link WeatherFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CompareTownFragment extends Fragment {
+public class WeatherFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -30,7 +28,7 @@ public class CompareTownFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public CompareTownFragment() {
+    public WeatherFragment() {
         // Required empty public constructor
     }
 
@@ -43,8 +41,8 @@ public class CompareTownFragment extends Fragment {
      * @return A new instance of fragment CompareTownFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CompareTownFragment newInstance(String param1, String param2) {
-        CompareTownFragment fragment = new CompareTownFragment();
+    public static WeatherFragment newInstance(String param1, String param2) {
+        WeatherFragment fragment = new WeatherFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -73,6 +71,6 @@ public class CompareTownFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_compare_town, container, false);
+        return inflater.inflate(R.layout.fragment_weather, container, false);
     }
 }

@@ -24,16 +24,16 @@
                 android:text="Perustiedot" />
 
             <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabCompare"
+                android:id="@+id/tabWeather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Vertailu" />
+                android:text="Sää" />
 
             <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabQuiz"
+                android:id="@+id/tabTraffic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Visailu" />
+                android:text="Liikenne" />
         </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

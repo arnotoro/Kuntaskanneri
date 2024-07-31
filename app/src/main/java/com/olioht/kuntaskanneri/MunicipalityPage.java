@@ -1,11 +1,8 @@
-package com.olioht.municipalityinfo;
+package com.olioht.kuntaskanneri;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -15,10 +12,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
-import com.olioht.municipalityinfo.api.DataRetriever;
-import com.olioht.municipalityinfo.fragments.BasicInfoFragment;
+import com.olioht.kuntaskanneri.api.DataRetriever;
+import com.olioht.kuntaskanneri.api.MunicipalityData;
 
 public class MunicipalityPage extends AppCompatActivity {
 

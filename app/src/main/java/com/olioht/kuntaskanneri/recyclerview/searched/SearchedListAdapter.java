@@ -1,20 +1,16 @@
-package com.olioht.municipalityinfo.recyclerview.searched;
+package com.olioht.kuntaskanneri.recyclerview.searched;
 
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.olioht.municipalityinfo.MainActivity;
-import com.olioht.municipalityinfo.MunicipalityPage;
-import com.olioht.municipalityinfo.R;
-
-import java.util.ArrayList;
+import com.olioht.kuntaskanneri.MunicipalityPage;
+import com.olioht.kuntaskanneri.R;
 
 public class SearchedListAdapter extends RecyclerView.Adapter<SearchedViewHolder> {
     private ListSearches searches;

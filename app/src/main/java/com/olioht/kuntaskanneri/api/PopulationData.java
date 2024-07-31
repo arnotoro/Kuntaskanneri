@@ -1,4 +1,4 @@
-package com.olioht.municipalityinfo.api;
+package com.olioht.kuntaskanneri.api;
 
 
 import java.util.Map;

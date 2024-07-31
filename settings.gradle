@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Municipality Info"
+rootProject.name = "Kuntatutka"
 include ':app'

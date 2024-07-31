@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.olioht.municipalityinfo'
+    namespace 'com.olioht.kuntaskanneri'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.olioht.municipalityinfo"
+        applicationId "com.olioht.kuntaskanneri"
         minSdk 24
         targetSdk 34
         versionCode 1

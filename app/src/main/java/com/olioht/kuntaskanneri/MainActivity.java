@@ -1,16 +1,13 @@
-package com.olioht.municipalityinfo;
+package com.olioht.kuntaskanneri;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,12 +17,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.olioht.municipalityinfo.recyclerview.searched.ListSearches;
-import com.olioht.municipalityinfo.recyclerview.searched.Search;
-import com.olioht.municipalityinfo.recyclerview.searched.SearchedListAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.olioht.kuntaskanneri.recyclerview.searched.ListSearches;
+import com.olioht.kuntaskanneri.recyclerview.searched.Search;
+import com.olioht.kuntaskanneri.recyclerview.searched.SearchedListAdapter;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -46,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         TextView search = findViewById(R.id.editTextSeach);
 
         if (search.getText().toString().isEmpty()) {
-            search.setError("Please enter a municipality name");
+            search.setError("Syötä kunta");
             return;
         }
 
