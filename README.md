@@ -21,7 +21,7 @@ Tein projektin yksin.
   - [x] Tietojen esittäminen käyttäjälle
 - [x] Dokumentaatio (README.md)
   - [x] Kuvaus
-  - [ ] Luokkakaavio
+  - [x] Luokkakaavio
   - [x] Työnjako
   - [x] Implementoidut ominaisuudet
   - [x] Pisteytysehdotus
