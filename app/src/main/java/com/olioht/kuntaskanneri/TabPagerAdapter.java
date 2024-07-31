@@ -8,7 +8,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.olioht.kuntaskanneri.api.MunicipalityData;
 import com.olioht.kuntaskanneri.fragments.BasicInfoFragment;
 import com.olioht.kuntaskanneri.fragments.WeatherFragment;
 import com.olioht.kuntaskanneri.fragments.TrafficFragment;
@@ -24,6 +23,7 @@ public class TabPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
+        // Fragment for each pager tab, municipality name is passed as an argument
         switch (position) {
             case 1:
                 Fragment weatherFragment = new WeatherFragment();
@@ -38,7 +38,6 @@ public class TabPagerAdapter extends FragmentStateAdapter {
                 trafficFragment.setArguments(args2);
                 return trafficFragment;
             default:
-                // set the title of the info page to the searched municipality
                 Fragment fragment = new BasicInfoFragment();
                 Bundle argsDefault = new Bundle();
                 argsDefault.putString("municipalityName", municipality);

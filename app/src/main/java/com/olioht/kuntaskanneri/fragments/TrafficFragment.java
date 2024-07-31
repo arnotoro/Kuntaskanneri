@@ -1,7 +1,6 @@
 package com.olioht.kuntaskanneri.fragments;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,7 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.olioht.kuntaskanneri.R;
 import com.olioht.kuntaskanneri.api.DataRetriever;
@@ -78,20 +77,22 @@ public class TrafficFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_traffic, container, false);
-
         return inflater.inflate(R.layout.fragment_traffic, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         Log.d("TrafficFramgnet", "TrafficFragment onViewCreated");
+
+        TextView pageTitle = view.findViewById(R.id.pageTitle);
+        TextView roadName = view.findViewById(R.id.roadName);
 
         Bundle bundle = getArguments();
         assert bundle != null;
         String location = bundle.getString("municipalityName");
+
 
         Log.d("TrafficFragment", "TrafficFragment municipalityName: " + location);
 
@@ -103,8 +104,15 @@ public class TrafficFragment extends Fragment {
             assert md != null;
 
             requireActivity().runOnUiThread(() -> {
-
                 TrafficData tfd = md.getTrafficData();
+                if (tfd == null) {
+                    pageTitle.setText("Tieliikennekameroita ei saatavilla");
+                    return;
+                }
+
+
+                pageTitle.setText(md.getTrafficData().getCamLocationName());
+
 
                 recyclerView = view.findViewById(R.id.weathercamImages);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

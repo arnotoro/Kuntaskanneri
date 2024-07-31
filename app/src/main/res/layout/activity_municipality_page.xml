@@ -21,19 +21,19 @@
                 android:id="@+id/tabMain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Perustiedot" />
+                android:text="@string/perustiedot" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tabWeather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sää" />
+                android:text="@string/weather" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tabTraffic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Liikenne" />
+                android:text="@string/weatherCams" />
         </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

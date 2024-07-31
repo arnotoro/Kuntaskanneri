@@ -39,22 +39,31 @@ public class MainActivity extends AppCompatActivity {
     public void onSearchBtnClick(View view) {
         TextView search = findViewById(R.id.editTextSeach);
 
+        // Check if search field is empty and show error message to user
         if (search.getText().toString().isEmpty()) {
             search.setError("Syötä kunta");
             return;
         }
 
+
         String searchQuery = search.getText().toString();
-        // first letter to uppercase, rest to lowercase
+
+        // First letter to uppercase, rest to lowercase
         searchQuery = searchQuery.substring(0, 1).toUpperCase() + searchQuery.substring(1).toLowerCase();
 
+        // Add search to list of previous searches
         ListSearches.getInstance().addSearch(new Search(searchQuery));
+
+        // Start new activity with search query as extra information
         Intent intent = new Intent(this, MunicipalityPage.class);
         intent.putExtra("municipalityName", searchQuery);
         municipalityActivityResultLauncher.launch(intent);
     }
 
     public void handleMunicipalityActivityResult(int resultCode, Intent data) {
+        // Handles the exit from the MunicipalityPage activity and updates the list of previous searches
+
+        // Check if the result is OK
         if (resultCode == Activity.RESULT_OK) {
             String municipalityName = data.getStringExtra("municipalityName");
             Log.d("MainActivity", "Municipality name from search activity: " + municipalityName);

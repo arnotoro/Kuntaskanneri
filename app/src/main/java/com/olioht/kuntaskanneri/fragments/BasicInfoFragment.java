@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,11 +101,12 @@ public class BasicInfoFragment extends Fragment {
         TextView txtEmploymentData = view.findViewById(R.id.txtEmploymentData);
         AnyChartView populationChartView = view.findViewById(R.id.populationChangeChartView);
 
+
+        // Initialize the chart for population change data
         Cartesian cartesian = AnyChart.line();
         cartesian.animation(true);
 
-        //cartesian.padding(5d, 5d, 5d, 5d);
-
+        // OnClick crosshair for the chart
         cartesian.crosshair().enabled(true);
         cartesian.crosshair()
                 .yLabel(true)
@@ -114,6 +114,7 @@ public class BasicInfoFragment extends Fragment {
 
         cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
 
+        // Chart styling and legend settings
         cartesian.title("Asukasmäärän kehitys (1990 - 2023)");
         cartesian.title().fontSize(16d);
         cartesian.title().fontColor("black");
@@ -123,40 +124,35 @@ public class BasicInfoFragment extends Fragment {
         cartesian.yAxis(0).title("Asukasmäärä");
         cartesian.yAxis(0).title().fontSize(15d);
 
-
-
         cartesian.xAxis(0).title("Vuosi");
         cartesian.xAxis(0).title().fontSize(15d);
         cartesian.xAxis(0).labels().padding(2d, 2d, 2d, 2d);
 
 
-        // get location from bundle arguments
         Bundle bundle = getArguments();
         if (bundle != null) {
 
-            // set page title to location
+            // Get location from arguments
             String location = bundle.getString("municipalityName");
-            pageTitle.setText(location);
 
-            // fetch api data in separate thread
+            // Fetch api data in separate thread
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 Context context = getContext();
                 assert context != null;
 
+                // API call to get municipality data
                 DataRetriever dataRetriever = new DataRetriever();
-                // population data
                 MunicipalityData municipality = dataRetriever.getMunicipalityData(context, location);
 
+                // Data fetch successful
                 if (municipality != null) {
-
                     PopulationData populationData = municipality.getPopulationData();
                     List<DataEntry> seriesData = new ArrayList<>();
 
                     for (Integer key : populationData.getPopulationChange().keySet()) {
-                        //System.out.println("Year: " + key + " Population: " + populationData.getPopulationChange().get(key));
+                        // Add population data to the line chart
                         seriesData.add(new CustomDataEntry(key, populationData.getPopulationChange().get(key)));
-
                     }
 
                     Set set = Set.instantiate();
@@ -176,19 +172,21 @@ public class BasicInfoFragment extends Fragment {
                             .offsetY(5d);
                 }
 
-                // update UI
+                // update UI after API call
                 requireActivity().runOnUiThread(() -> {
-
                     if (municipality != null) {
-                        // get the last element of the list, which is the most recent data
+                        // Last element in the population data is the current population
                         String population = String.valueOf(municipality.getPopulationData().getPopulation());
                         txtPopulationData.setText("Nykyinen asukasmäärä: " + population);
 
-                        // set silhouette based on population
+                        // Set page title to location with styling
+                        pageTitle.setText(location);
                         pageTitle.setBackgroundColor(Color.GRAY);
                         pageTitle.setTextColor(Color.WHITE);
                         pageTitle.setShadowLayer(10, 2, 2, Color.BLACK);
                         pageTitle.setAlpha(0.8f);
+
+                        // Set silhouette based on population
                         if (municipality.getPopulationData().getPopulation() < 20000) {
                             pageTitle.setBackgroundResource(R.drawable.silhouette_small);
                         } else if (municipality.getPopulationData().getPopulation() < 100000) {
@@ -197,17 +195,15 @@ public class BasicInfoFragment extends Fragment {
                             pageTitle.setBackgroundResource(R.drawable.silhouette_large);
                         }
 
-
                         populationChartView.setChart(cartesian);
 
-                        //System.out.println("Employment data: " + employmentData);
+                        // Employment data for the municipality
                         txtEmploymentData.setText("Työllisyysaste: " + municipality.getPoliticalData().getEmploymentRate() + "%");
                         txtEmploymentSuffiencyData.setText("Työpaikkaomavaraisuusaste: " + municipality.getPoliticalData().getEmploymentSelfSuffiency() + "%");
                     } else {
-                        // create alert dialog if data is not available
+                        // Create alert dialog if data is not available (e.g. municipality name wrong, api call failed)
                         AlertDialog dialog = getAlertDialog();
                         dialog.show();
-
                     }
                 });
             });

@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -35,57 +36,115 @@ public class DataRetriever {
         PopulationData popData = fetchPopulationData(context, location);
         PoliticalData polData = fetchPoliticalData(context, location);
         TrafficData trafficData = fetchTrafficData(context, location);
+        WeatherData weatherData = fetchWeatherData(context, location);
 
         if (popData == null || polData == null) {
             Log.d("DataRetriever", "Data fetch failed. Data might not be available for " + location);
             return null;
 
         }
-        return new MunicipalityData(location, municipalityCodes.get(location), popData, polData, trafficData);
+        return new MunicipalityData(location, municipalityCodes.get(location), popData, polData, trafficData, weatherData);
+    }
+
+    private WeatherData fetchWeatherData(Context context, String location) {
+
+        String API_KEY = "7fff64e1f441738c518add11ec237b8c";
+
+        JsonNode locationGeoCode = fetchJsonDataFromApi("https://api.openweathermap.org/geo/1.0/direct?q=" + location +"&limit=5&appid=" +API_KEY, null);
+        if (locationGeoCode != null) {
+            for (JsonNode node : locationGeoCode) {
+                if (node.get("country").asText().toUpperCase().contains("FI")) {
+                    String lat = node.get("lat").asText();
+                    String lon = node.get("lon").asText();
+                    JsonNode weatherData = fetchJsonDataFromApi("https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&units=metric&appid=" + API_KEY, null);
+                    System.out.println("Node: " + weatherData);
+
+                    if (weatherData != null) {
+                        int temperature = weatherData.get("main").get("temp").asInt();
+                        int temperatureFeelsLike = weatherData.get("main").get("feels_like").asInt();
+                        int humidity = weatherData.get("main").get("humidity").asInt();
+                        int windSpeed = weatherData.get("wind").get("speed").asInt();
+                        int pressure = weatherData.get("main").get("pressure").asInt();
+                        String weather = weatherData.get("weather").get(0).get("description").asText();
+                        String weatherIconID = weatherData.get("weather").get(0).get("icon").asText();
+                        if (weatherData.get("rain") != null) {
+                            double rain = weatherData.get("rain").get("1h").asDouble();
+                            return new WeatherData(temperature, temperatureFeelsLike, humidity, windSpeed, pressure, rain, weather, weatherIconID);
+                        }
+
+                        return new WeatherData(temperature, temperatureFeelsLike, humidity, windSpeed, pressure, 0.0, weather, weatherIconID);
+
+
+
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 
     private TrafficData fetchTrafficData(Context context, String location) {
         JsonNode weatherCamLocationID = fetchWeatherCamLocationID(location);
         ObjectMapper objectMapper = new ObjectMapper();
-        Log.d("DataRetriever", "fetchTrafficData: " + weatherCamLocationID);
 
         ArrayList<byte[]> images = new ArrayList<>();
+        ArrayList<String> roadNames = new ArrayList<>();
 
-        for (JsonNode node : weatherCamLocationID) {
-            System.out.println("Node: " + node);
-            String id = node.get("id").asText();
-            Log.d("DataRetriever", "fetchTrafficDataID: " + id);
-            Log.d("DataRetriever", "fetchTrafficDataAsText: " + node.get("id").asText());
+        if (weatherCamLocationID == null) {
+            // no weather cam data available for location
+            return null;
+        } else {
+            Log.d("DataRetriever:fetchTrafficData", "weatherCamLocationID:" + weatherCamLocationID);
 
-            try {
-                URL url = new URL("https://weathercam.digitraffic.fi/" + id + ".jpg");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept", "image/jpeg");
+            JsonNode weatherCamData = fetchJsonDataFromApi("https://tie.digitraffic.fi/api/weathercam/v1/stations/" + weatherCamLocationID.asText(), null);
+            Log.d("DataRetriever:fetchTrafficData", "weatherCamData: " + weatherCamData);
 
-                BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            String camLocationName = weatherCamData.get("properties").get("names").get("fi").asText();
+            JsonNode weatherCamProperties = weatherCamData.get("properties").get("presets");
+            System.out.println("Node: " + weatherCamProperties);;
 
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = bis.read(buffer, 0, buffer.length)) != -1) {
-                    baos.write(buffer, 0, bytesRead);
+
+            for (JsonNode node : weatherCamProperties) {
+                String camID = node.get("id").asText();
+                String camName = node.get("presentationName").asText();
+                String imageURL = node.get("imageUrl").asText();
+
+                System.out.println("CamID: " + camID);
+                System.out.println("CamName: " + camName);
+                System.out.println("ImageURL: " + imageURL);
+
+                roadNames.add(camName);
+
+                try {
+                    URL URL = new URL(imageURL);
+                    HttpURLConnection connection = (HttpURLConnection) URL.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setRequestProperty("Accept", "image/jpeg");
+
+                    BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = bis.read(buffer, 0, buffer.length)) != -1) {
+                        baos.write(buffer, 0, bytesRead);
+                    }
+
+                    bis.close();
+                    baos.close();
+
+                    images.add(baos.toByteArray());
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                bis.close();
-                baos.close();
-
-                images.add(baos.toByteArray());
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        }
 
-        return new TrafficData(location, images);
+            return new TrafficData(location, images, roadNames, camLocationName);
+        }
     }
 
 
@@ -104,7 +163,7 @@ public class DataRetriever {
 
         ((ObjectNode) jsonInputString.get("query").get(0).get("selection")).putArray("values").add(municipalityCode);
 
-        JsonNode rawPopulationData = fetchDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px", jsonInputString);
+        JsonNode rawPopulationData = fetchJsonDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px", jsonInputString);
         if (rawPopulationData == null) {
             return null;
         }
@@ -143,7 +202,7 @@ public class DataRetriever {
             throw new RuntimeException(e);
         }
 
-        JsonNode rawEmploymentSuffiencyData = fetchDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_125s.px", jsonInputStringEmploymentSuffiency);
+        JsonNode rawEmploymentSuffiencyData = fetchJsonDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_125s.px", jsonInputStringEmploymentSuffiency);
         if (rawEmploymentSuffiencyData == null) {
             return null;
         }
@@ -155,7 +214,7 @@ public class DataRetriever {
             throw new RuntimeException(e);
         }
 
-        JsonNode rawEmploymentData = fetchDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_115x.px", jsonInputStringEmployment);
+        JsonNode rawEmploymentData = fetchJsonDataFromApi("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/tyokay/statfin_tyokay_pxt_115x.px", jsonInputStringEmployment);
         if (rawEmploymentData == null) {
             System.out.println("Data fetch failed.");
             return null;
@@ -169,78 +228,73 @@ public class DataRetriever {
     }
 
     private JsonNode fetchWeatherCamLocationID(String location) {
-        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode weatherCamLocations = fetchJsonDataFromApi("https://tie.digitraffic.fi/api/weathercam/v1/stations", null);
 
-        try {
-            URL url = new URL("https://tie.digitraffic.fi/api/weathercam/v1/stations");
-            //URL url = new URL("https://pxdata.stat.fi:443/PxWeb/api/v1/fi/StatFin/synt/statfin_synt_pxt_12dy.px");
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type", "application/json; utf-8");
-            connection.setRequestProperty("Accept", "application/json");
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder response = new StringBuilder();
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                response.append(line.trim());
-            }
-
-            JsonNode weatherCamLocations = objectMapper.readTree(response.toString());
-
-            // find the weather cam id for the location
+        // find the weather cam id for the location
+        if (weatherCamLocations == null) {
+            // no weather cam data available
+            return null;
+        } else {
             for (JsonNode node : weatherCamLocations.get("features")) {
                 if (node.get("properties").get("name").asText().toUpperCase().contains(location.toUpperCase())) {
                     //System.out.println(node.get("properties").get("presets").get(0).get("id").asText());
-                    return node.get("properties").get("presets");
+                    return node.get("properties").get("id");
                 }
             }
-
-
-            //System.out.println(weatherCamLocations.get("features").get(0).get("properties").get("name"));
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return null;
     }
 
 
-    private JsonNode fetchDataFromApi(String StringUrl, JsonNode query) {
+    private JsonNode fetchJsonDataFromApi(String StringUrl, JsonNode query) {
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            URL url = new URL(StringUrl);
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; utf-8");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setDoOutput(true);
+        if (query == null) {
+            try {
+                URL url = new URL(StringUrl);
 
-//            // JsonNode jsonInputString = objectMapper.readTree(context.getResources().openRawResource(R.raw.query));
-//            JsonNode jsonInputString = objectMapper.readTree(query);
-//            ((ObjectNode) jsonInputString.get("query").get(0).get("selection")).putArray("values").add(mCode);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Content-Type", "application/json; utf-8");
+                connection.setRequestProperty("Accept", "application/json");
 
-            byte[] input = objectMapper.writeValueAsBytes(query);
-            OutputStream os = connection.getOutputStream();
-            os.write(input, 0, input.length);
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder response = new StringBuilder();
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                response.append(line.trim());
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+                StringBuilder response = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+                return objectMapper.readTree(response.toString());
             }
-            return objectMapper.readTree(response.toString());
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                URL url = new URL(StringUrl);
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json; utf-8");
+                connection.setRequestProperty("Accept", "application/json");
+                connection.setDoOutput(true);
+
+                byte[] input = objectMapper.writeValueAsBytes(query);
+                OutputStream os = connection.getOutputStream();
+                os.write(input, 0, input.length);
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+                StringBuilder response = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+                return objectMapper.readTree(response.toString());
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return null;

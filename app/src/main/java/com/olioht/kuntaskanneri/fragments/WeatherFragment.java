@@ -1,16 +1,30 @@
 package com.olioht.kuntaskanneri.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.olioht.kuntaskanneri.R;
+import com.olioht.kuntaskanneri.api.DataRetriever;
+import com.olioht.kuntaskanneri.api.MunicipalityData;
+import com.olioht.kuntaskanneri.api.TrafficData;
+import com.olioht.kuntaskanneri.api.WeatherData;
+import com.olioht.kuntaskanneri.recyclerview.weathercam.WeatherCamListAdapter;
+
+import org.w3c.dom.Text;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,18 +73,89 @@ public class WeatherFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        //Test print
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_weather, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        TextView pageTitle = view.findViewById(R.id.pageTitle);
+        ImageView weatherIcon = view.findViewById(R.id.weatherIcon);
+        TextView temperature = view.findViewById(R.id.currentTemperature);
+        TextView humidity = view.findViewById(R.id.currentHumidity);
+        TextView windSpeed = view.findViewById(R.id.currentWindSpeed);
+        TextView pressure = view.findViewById(R.id.currentPressure);
+        TextView rainAmount = view.findViewById(R.id.currentRainAmountLastHour);
+        TextView weatherDescription = view.findViewById(R.id.weatherDescription);
+
+        Bundle bundle = getArguments();
+        assert bundle != null;
+        String location = bundle.getString("municipalityName");
+
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            DataRetriever dr = new DataRetriever();
+            MunicipalityData md = dr.getMunicipalityData(getContext(), location);
+            assert md != null;
+
+            requireActivity().runOnUiThread(() -> {
+                WeatherData wd = md.getWeatherData();
+
+                if (wd == null) {
+                    pageTitle.setText("Säätiedot eivät saatavilla");
+                    return;
+                }
+
+
+                pageTitle.setText(location);
+                weatherIcon.setBackgroundColor(Color.parseColor("#d1dff6"));
+                temperature.setText(wd.getCurrentTemperature() + "°C");
+                weatherDescription.setText(wd.getCurrentWeather());
+                humidity.setText("Suht. kosteus: " + wd.getCurrentHumidity() + "%");
+                windSpeed.setText("Tuuli: "+ wd.getCurrentWindSpeed() + " m/s");
+                pressure.setText("Ilmanpaine: " + wd.getCurrentPressure() + "hPa");
+                rainAmount.setText("Sademäärä (viim. 1h): " + wd.getCurrentRainAmountLastHour() + "mm");
+
+
+                System.out.println("WeatherFragment onViewCreated: " + wd.getWeatherIconId());
+
+                switch(wd.getWeatherIconId()) {
+                    case "02d":
+                        weatherIcon.setImageResource(R.drawable.weather_few_clouds);
+                        break;
+                    case "03d":
+                        weatherIcon.setImageResource(R.drawable.weather_scattered_clouds);
+                        break;
+                    case "04d":
+                        weatherIcon.setImageResource(R.drawable.weather_broken_clouds);
+                        break;
+                    case "09d":
+                        weatherIcon.setImageResource(R.drawable.weather_rain);
+                        break;
+                    case "10d":
+                        weatherIcon.setImageResource(R.drawable.weather_rain_with_sun);
+                        break;
+                    case "11d":
+                        weatherIcon.setImageResource(R.drawable.weather_thunder);
+                        break;
+                    case "13d":
+                        weatherIcon.setImageResource(R.drawable.weather_snow);
+                        break;
+                    case "50d":
+                        weatherIcon.setImageResource(R.drawable.weather_fog);
+                        break;
+                    default:
+                        weatherIcon.setImageResource(R.drawable.weather_sunny);
+                        break;
+                }
+            });
+        });
+
     }
 }

@@ -52,20 +52,19 @@ TODO: KOMMENTOI KOODI
 
 ### Pisteytysehdotus
 - **10 pistettä** pakollisista ominaisuuksista
-- **22 pistettä** lisäominaisuuksista
+- **21 pistettä** lisäominaisuuksista
   - 3 pistettä - RecycleView-komponentin käytöstä
   - 2 pistettä - Kuvien käytöstä datassa
-  - 6 pistettä - Datalähteitä on useampi
+  - 5 pistettä - Datalähteitä on useampi
     - 3 pistettä toisesta datalähteestä
     - 2 pistettä kolmannesta datalähteestä
-    - 1 piste neljännestä datalähteestä
   - 2 pistettä - Viimeksi haetut kunnat pikavalintoina etusivulla
   - 4 pistettä - Fragmenttien käytöstä kuntatietojen, vertailun ja visailun esittämisessä
   - 5 pistettä - Datan visualisointi graafisesti
   - x pistettä - Kuntien vertailu
   - x pistettä - Kuntavisa
 
-#### Yhteenlaskeutut pisteet: 32 + x
+#### Yhteenlaskeutut pisteet: 31
 
 ## Luokkakaavio
 

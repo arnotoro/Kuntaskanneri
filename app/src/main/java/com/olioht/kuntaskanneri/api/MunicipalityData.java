@@ -6,13 +6,15 @@ public class MunicipalityData {
     private PopulationData populationData;
     private PoliticalData politicalData;
     private TrafficData trafficData;
+    private WeatherData weatherData;
 
-    public MunicipalityData(String municipality, String municipalityCode, PopulationData populationData, PoliticalData politicalData, TrafficData trafficData) {
+    public MunicipalityData(String municipality, String municipalityCode, PopulationData populationData, PoliticalData politicalData, TrafficData trafficData, WeatherData weatherData) {
         this.municipality = municipality;
         this.municipalityCode = municipalityCode;
         this.populationData = populationData;
         this.politicalData = politicalData;
         this.trafficData = trafficData;
+        this.weatherData = weatherData;
     }
 
     public String getMunicipality() {
@@ -29,6 +31,10 @@ public class MunicipalityData {
 
     public TrafficData getTrafficData() {
         return trafficData;
+    }
+
+    public WeatherData getWeatherData() {
+        return weatherData;
     }
 
 }

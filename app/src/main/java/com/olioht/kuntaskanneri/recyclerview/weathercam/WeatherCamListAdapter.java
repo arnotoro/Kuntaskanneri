@@ -21,10 +21,12 @@ import java.util.List;
 public class WeatherCamListAdapter extends RecyclerView.Adapter<WeatherCamViewHolder> {
     private Context context;
     private List<byte[]> images;
+    private List<String> roadNames;
 
     public WeatherCamListAdapter(Context context, TrafficData trafficData) {
         this.context = context;
         this.images = trafficData.getWeatherCamImages();
+        this.roadNames = trafficData.getRoadNames();
     }
 
     @NonNull
@@ -37,8 +39,11 @@ public class WeatherCamListAdapter extends RecyclerView.Adapter<WeatherCamViewHo
     public void onBindViewHolder(@NonNull WeatherCamViewHolder holder, int position) {
         Log.d("WeatherCamListAdapter", "onBindViewHolder: " + position);
         byte[] image = images.get(position);
+        String roadName = roadNames.get(position);
+
         Bitmap bm = BitmapFactory.decodeByteArray(image, 0, image.length);
         holder.weatherCamImage.setImageBitmap(bm);
+        holder.roadName.setText(roadName);
     }
 
     @Override

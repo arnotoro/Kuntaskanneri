@@ -13,8 +13,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
-import com.olioht.kuntaskanneri.api.DataRetriever;
-import com.olioht.kuntaskanneri.api.MunicipalityData;
 
 public class MunicipalityPage extends AppCompatActivity {
 
@@ -29,14 +27,14 @@ public class MunicipalityPage extends AppCompatActivity {
             return insets;
         });
 
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        ViewPager2 fragmentArea = findViewById(R.id.viewArea);
 
         // Get the selected municipality name from the intent
         Intent intent = getIntent();
         String municipality = intent.getStringExtra("municipalityName");
 
-
-        TabLayout tabLayout = findViewById(R.id.tabLayout);
-        ViewPager2 fragmentArea = findViewById(R.id.viewArea);
+        // Bottom navigation bar setup and logic
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), getLifecycle(), municipality);
         fragmentArea.setAdapter(tabPagerAdapter);
 
@@ -63,7 +61,7 @@ public class MunicipalityPage extends AppCompatActivity {
         });
 
 
-        // handle back button press and return the municipality name to the main activity
+        // Handle back button press and return the municipality name to the main activity with ok result
         OnBackPressedCallback onBack = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
